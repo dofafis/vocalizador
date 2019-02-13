@@ -107,7 +107,8 @@ server.router = {
    'ping' : handlers.ping,
    'usuarios' : handlers.usuarios,
    'tokens' : handlers.tokens,
-   'categorias' : handlers.categorias
+   'categorias' : handlers.categorias,
+   'cartoes': handlers.cartoes
  };
 
  // Init script

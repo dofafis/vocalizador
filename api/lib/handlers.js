@@ -683,7 +683,78 @@ handlers._categorias.delete = function(data, callback) {
 
 }
 
+// Cartões
+handlers.cartoes = function(data,callback){
+  var acceptableMethods = ['post','get','put','delete'];
+  if(acceptableMethods.indexOf(data.method) > -1){
+    handlers._cartoes[data.method](data,callback);
+  } else {
+    callback(405);
+  }
+};
 
+
+handlers._cartoes = {};
+
+// Cartões - post
+// Dados obrigatórios: id_categoria, nome
+// Dados opcionais: none
+handlers._cartoes.post = function(data, callback) {
+  var id_categoria = typeof(data.payload.id_categoria) == 'number' ? data.payload.id_categoria : false;
+  var nome = typeof(data.payload.nome) == 'string' && data.payload.nome.length > 0 ? data.payload.nome : false;
+
+  // Conferir se os dados obrigatórios foram enviados
+  if(id_categoria && id_categoria) {
+
+    // Verificar se o token foi enviado
+    var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+    
+    if(token){
+
+      _data.selectByField('token', {'id': token}, function(err, tokenData) {
+        if(!err && tokenData) {
+          if(tokenData.length == 1) {
+            if( tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+
+              var cartaoData = {
+                'id_categoria': id_categoria,
+                'nome': nome
+              };
+
+              _data.insert('cartao', cartaoData, function(err) {
+                if(!err) {
+                  callback(200);
+                }else {
+                  callback(500, {'Error': 'Não foi possível cadastrar o cartão, tente novamente'});
+                }
+              });
+
+            }else {
+              callback(401, {'Error': 'Token expirado'});
+            }
+          }else {
+            callback(400, {'Error': 'Token inexistente'});
+          }
+        }else {
+          callback(500, {'Error': 'Problemas ao procurar o token, tente novamente'});
+        }
+      });
+
+    }else {
+      callback(400, {'Error': 'Token não foi enviado'});
+    }
+
+  }else {
+    callback(400, {'Error': 'Dados obrigatórios não foram enviados'});
+  }
+}
+
+// Cartoes - get
+// Dados obrigatórios: id
+// Dados opcionais: none
+handlers._cartoes.get = function(data, callback) {
+  //@TODO
+};
 
 handlers._tokens.verificarToken = function(token, login, callback) {
 
