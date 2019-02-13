@@ -753,8 +753,144 @@ handlers._cartoes.post = function(data, callback) {
 // Dados obrigatórios: id
 // Dados opcionais: none
 handlers._cartoes.get = function(data, callback) {
-  //@TODO
+  var id = typeof(data.queryStringObject.id) == 'string' ? data.queryStringObject.id : false;
+
+  if(id) {
+
+    var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length > 0 ? data.headers.token.trim() : false;
+
+    if(token) {
+
+      _data.selectByField('token', {'id': token}, function(err, tokenData) {
+        if(!err && tokenData) {
+          if(tokenData.length == 1) {
+
+            if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+
+              _data.selectByField('cartao', {'id': id}, function(err, cartaoData) {
+                if(!err && cartaoData) {
+
+                  if(cartaoData.length == 1) {
+                    callback(200, cartaoData[0]);
+                  }else {
+                    callback(400, {'Error': 'Cartão inexistente'});
+                  }
+
+                }else {
+                  callback(500, {'Error': 'Problemas ao procurar pelo cartão, tente novamente'});
+                }
+              });
+
+            }else {
+              callback(400, {'Error': 'Token expirado'});
+            }
+
+          }else {
+            callback(400, {'Error': 'Token inexistente'});
+          }
+        }else {
+          callback(500, {'Error': 'Problemas ao procurar o token, tente novamente'});
+        }
+      });
+
+    }else {
+      callback(400, {'Error': 'Token não enviado'});
+    }
+
+
+  }else {
+    callback(400, {'Error': 'Faltando dado obrigatório (id)'});
+  }
 };
+
+// Cartoes - put
+// Dados obrigatórios: id
+// Dados opcionais: id_categoria, nome (pelo menos um dos dois deve ser especificado)
+handlers._cartoes.put = function(data, callback) {
+  // Receber dados obirgatórios
+  var id = typeof(data.payload.id) == 'number' ? data.payload.id : false;
+
+  // Receber dados opcionais
+  var id_categoria = typeof(data.payload.id_categoria) == 'number' ? data.payload.id_categoria : false;
+  var nome = typeof(data.payload.nome) == 'string' && data.payload.nome.trim().length > 0 ? data.payload.nome.trim() : false;
+
+  // Verificar o id
+  if(id) {
+    // Verificar id_categoria e nome
+    if(id_categoria || nome) {
+
+      var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length > 0 ? data.headers.token.trim() : false;
+
+      if(token) {
+
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+
+          if(!err && tokenData) {
+
+            if(tokenData.length == 1){
+
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+
+                _data.selectByField('cartao', {'id': id}, function(err, cartaoData) {
+
+                  if(!err && cartaoData) {
+                    if(cartaoData.length == 1) {
+                      if(id_categoria) {
+                        cartaoData[0].id_categoria = id_categoria;
+                      }
+                      if(nome) {
+                        cartaoData[0].nome = nome;
+                      }
+
+                      _data.update('cartao', {'id': id}, cartaoData[0], function(err) {
+                        if(!err) {
+
+                          callback(200);
+
+                        }else {
+                          callback(500, {'Error': 'Não foi possível atualizar o cartao, tente novamente'});
+                        }
+                      });
+                    } else {
+                      callback(400, {'Error': 'Cartão inexistente'});
+                    }
+                  }else {
+                    callback(500, {'Error': 'Problemas ao procurar o cartao, tente novamente'});
+                  }
+
+                });
+
+              }else {
+                callback(400, {'Error': 'Token expirado'});
+              }
+
+            }else {
+              callback(400, {'Error': 'Token inexistente'});
+            }
+
+          }else {
+            callback(500, {'Error': 'Problemas ao procurar o token, tente novamente'});
+          }
+
+        });
+
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
+
+    }else {
+      callback(400, {'Error': 'Pelo menos um dado opcional deve ser enviado, nenhum encontrado'});
+    }
+
+  }else {
+    callback(400, {'Error': 'Faltando dado obirgatório (id)'});
+  }
+};
+
+// Cartao - delete
+// Dados obrigatórios: id
+// Dados opcionais: none
+
 
 handlers._tokens.verificarToken = function(token, login, callback) {
 
