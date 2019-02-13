@@ -890,6 +890,54 @@ handlers._cartoes.put = function(data, callback) {
 // Cartao - delete
 // Dados obrigatórios: id
 // Dados opcionais: none
+handlers._cartoes.delete = function(data, callback) {
+  // Verificar dados obrigatórios
+  var id = typeof(data.queryStringObject.id) == 'string' && data.queryStringObject.id.trim().length > 0 ? data.queryStringObject.id.trim() : false;
+
+  if(id) {
+
+    var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+
+    if(token) {
+
+      _data.selectByField('token', {'id': token}, function(err, tokenData) {
+        if(!err && tokenData) {
+
+          if(tokenData.length == 1) {
+
+            if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+
+              _data.delete('cartao', {'id': id}, function(err) {
+
+                if(!err) {
+                  callback(200);
+                }else {
+                  callback(500, {'Error': 'Não foi possível deletar o cartão, tente novamente'});
+                }
+
+              });
+
+            }else {
+              callback(400, {'Error': 'Token expirado'});
+            }
+
+          }else {
+            callback(400, {'Error': 'Token inexistente'});
+          }
+
+        }else {
+          callback(500, {'Error': 'Problemas ao procurar o token, tente novamente'});
+        }
+      });
+
+    }else {
+      callback(400, {'Error': 'Token não enviado'});
+    }
+
+  }else {
+    callback(400, {'Error': 'Faltando dado obrigatório (id)'});
+  }
+}
 
 
 handlers._tokens.verificarToken = function(token, login, callback) {
@@ -918,12 +966,12 @@ handlers._tokens.verificarToken = function(token, login, callback) {
                 }else {
                   callback({ 'code': 500, 'Error': 'Problemas ao encontrar o usuário, tente novamente' });
                 }
-          
+
               } else {
                 callback({ 'code': 500, 'Error': 'Problemas ao encontrar o usuário, tente novamente' });
               }
             });
-          
+
           } else {
             callback({ 'code': 404, 'Error': 'Token com validade expirada' });
           }
