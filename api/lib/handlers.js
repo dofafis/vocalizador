@@ -4,6 +4,7 @@
  */
 
 // Dependencies
+var fs = require('fs');
 var _data = require('./data');
 var helpers = require('./helpers');
 var config = require('./config');
@@ -57,22 +58,22 @@ handlers._usuarios.post = function(data,callback){
         if(results.length > 0){
           // Se retornou algum resultado, é porque usuário já existe
           callback(400, {'Error': 'Usuário já existe'});
-          
+
         }else {
 
           _data.selectByField('usuario', {'email': email}, function(err, results){
             if(!err && results){
               if(results.length > 0){
-                // Se retornou algum resultado, é porque usuário já existe  
-                callback(400, {'Error': 'Usuário já existe'});         
+                // Se retornou algum resultado, é porque usuário já existe
+                callback(400, {'Error': 'Usuário já existe'});
 
               }else {
 
                 // Encriptar a senha
                 senhaEncriptada = helpers.hash(senha);
-                
+
                 if(senhaEncriptada){
-                  
+
                   //criar o json do usuario
                   userData = {
                     'nome': nome,
@@ -98,10 +99,10 @@ handlers._usuarios.post = function(data,callback){
           });
 
         }
-      // Se houver erro a consulta não foi completada      
+      // Se houver erro a consulta não foi completada
       }else{
         callback(500, {'Error2': 'Não foi possível consultar o banco, tente novamente'});
-      } 
+      }
     });
   } else {
     callback(400,{'Error' : 'Faltando campos obrigatórios'});
@@ -115,7 +116,7 @@ handlers._usuarios.post = function(data,callback){
 handlers._usuarios.get = function(data,callback){
   // Check that phone number is valid
   var login = typeof(data.queryStringObject.login) == 'string' && data.queryStringObject.login.trim().length > 0 ? data.queryStringObject.login.trim() : false;
-  
+
   if(login){
 
     // Get token from headers
@@ -177,7 +178,7 @@ handlers._usuarios.put = function(data,callback){
             if(!err && userData){
 
               if(userData.length == 1){
-                
+
                 // Atualiza os campos que são necessários
                 if(nome){
                   userData[0].nome = nome;
@@ -239,13 +240,12 @@ handlers._usuarios.delete = function(data,callback){
           if(!err && userData){
 
             if(userData.length == 1){
-              
+
               // Delete the user's data
               _data.delete('usuario', { 'login': login}, function(err){
                 if(!err){
                   callback(200);
                 }else {
-                  console.log(err);
                   callback(500, {'Error': 'Não foi possível excluir o usuário, tente novamente'});
                 }
               });
@@ -301,7 +301,7 @@ handlers._tokens.post = function(data, callback){
               'id_usuario' : userData[0].id,
               'validade' : validade
             };
-  
+
             // Store the token
             _data.insert('token', tokenObject, function(err) {
               if(!err){
@@ -334,7 +334,7 @@ handlers._tokens.post = function(data, callback){
 handlers._tokens.get = function(data,callback){
   // Checar o id do token é válido
   var id = typeof(data.queryStringObject.id) == 'string' && data.queryStringObject.id.trim().length == 20 ? data.queryStringObject.id.trim() : false;
-  
+
   if(id){
     // Procurar pelo token
     _data.selectByField('token', { 'id': id }, function(err, tokenData){
@@ -361,7 +361,7 @@ handlers._tokens.put = function(data,callback){
   // Verificar que o dados obrigatórios foram enviados
   var id = typeof(data.payload.id) == 'string' && data.payload.id.trim().length == 20 ? data.payload.id.trim() : false;
   var extend = typeof(data.payload.extend) == 'boolean' && data.payload.extend == true ? true : false;
-  
+
   // Verificar se estão válidos o dados obrigatórios
   if(id && extend){
     // Procurar pelo token através do id fornecido
@@ -404,7 +404,7 @@ handlers._tokens.put = function(data,callback){
 handlers._tokens.delete = function(data,callback){
   // Checar se o token recebido é válido
   var id = typeof(data.queryStringObject.id) == 'string' && data.queryStringObject.id.trim().length == 20 ? data.queryStringObject.id.trim() : false;
-  
+
   // Checar se o resultado da validação
   if(id){
     // Procurar pelo token especificado
@@ -456,7 +456,7 @@ handlers._tokens.post = function(data, callback){
               'id_usuario' : userData[0].id,
               'validade' : validade
             };
-  
+
             // Store the token
             _data.insert('token', tokenObject, function(err) {
               if(!err){
@@ -577,7 +577,7 @@ handlers._categorias.put = function(data, callback) {
   if(id) {
     // Verificar que algum dado opcional foi enviado
     if(nome || descricao) {
-      
+
       var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
       _data.selectByField('token', {'id': token}, function(err, tokenData) {
         if(!err && tokenData) {
@@ -587,7 +587,7 @@ handlers._categorias.put = function(data, callback) {
               _data.selectByField('categoria', {'id': id}, function(err, categoriaData) {
                 if(!err && categoriaData) {
                   if(categoriaData.length == 1) {
-                    //Atualiza os campos necessários
+                    // Atualiza os campos necessários
                     if(nome){
                       categoriaData[0].nome = nome;
                     }
@@ -700,15 +700,16 @@ handlers._cartoes = {};
 // Dados obrigatórios: id_categoria, nome
 // Dados opcionais: none
 handlers._cartoes.post = function(data, callback) {
+
   var id_categoria = typeof(data.payload.id_categoria) == 'number' ? data.payload.id_categoria : false;
   var nome = typeof(data.payload.nome) == 'string' && data.payload.nome.length > 0 ? data.payload.nome : false;
 
   // Conferir se os dados obrigatórios foram enviados
-  if(id_categoria && id_categoria) {
+  if(id_categoria && nome) {
 
     // Verificar se o token foi enviado
     var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
-    
+
     if(token){
 
       _data.selectByField('token', {'id': token}, function(err, tokenData) {
@@ -939,6 +940,118 @@ handlers._cartoes.delete = function(data, callback) {
   }
 }
 
+// Container de todas os handlers de uploads
+handlers.uploads = {};
+
+// Confere o método e redirecionar para a rota correta de upload
+handlers.uploads.cartoes = function(data,callback){
+  var acceptableMethods = ['post','get','put','delete'];
+  if(acceptableMethods.indexOf(data.method) > -1){
+    handlers.uploads._cartoes[data.method](data,callback);
+  } else {
+    callback(405);
+  }
+};
+
+// Container das rotas de uploads de cartões
+handlers.uploads._cartoes = {};
+
+// Uploads Cartões - post
+// Dados obrigatórios: id
+// Dados opcionais: imagem, audio (pelo menos um dos dois deve ser enviado)
+handlers.uploads._cartoes.post = function(data, callback) {
+
+  // Conferir dados obrigatórios
+  if(data.payload.fields.id){
+    var id = typeof(data.payload.fields.id[0]) == 'string' && data.payload.fields.id[0].trim().length > 0 ? data.payload.fields.id[0].trim() : false;
+  }
+
+  // Conferir dados opcionais
+  if(data.payload.files.imagem){
+    var imagem = typeof(data.payload.files.imagem[0]) == 'object' ? data.payload.files.imagem[0] : false;
+  }
+  if(data.payload.files.audio){
+    var audio = typeof(data.payload.files.audio[0]) == 'object' ? data.payload.files.audio[0] : false;
+  }
+  // Conferir dados obrigatórios
+  if(id) {
+
+    if(imagem || audio) {
+
+      var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+
+      if(token) {
+
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+          if(!err && tokenData) {
+            if(tokenData.length == 1) {
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+
+                if(imagem) {
+                  //Pegar a extensão do arquivo
+                  var index = imagem.originalFilename.split('.').length - 1;
+                  var extensao = imagem.originalFilename.split('.')[index];
+                  var nomeArquivo = id + '.' + extensao;
+                  var novoCaminho = __dirname + '/../../storage/cartoes/imagem/';
+                  fs.access(novoCaminho + nomeArquivo, fs.F_OK, (err) =>{
+
+                    if(!err){
+                      callback(400, {'Error': 'Essa rota é para inserir uma imagem e não atualizá-la, para substituir a imagem atual utilize um PUT'});
+                    }else {
+                      _data.moverArquivo(nomeArquivo, imagem, novoCaminho, function(err) {
+
+                        if(!err) {
+                          callback(200);
+                        }else {
+                          callback(500, {'Error': 'Não foi possível fazer o upload da imagem, tente novamente'});
+                        }
+
+                      });
+
+                    }
+                  });
+                }
+
+                if(audio) {
+                  //Pegar a extensão do arquivo
+                  var index = audio.originalFilename.split('.').length - 1;
+                  var extensao = audio.originalFilename.split('.')[index];
+                  _data.moverArquivo(id + '.' + extensao, audio, __dirname + '/../../storage/cartoes/audio/', function(err) {
+
+                    if(!err) {
+                      callback(200);
+                    }else {
+                      callback(500, {'Error': 'Não foi possível fazer o upload do áudio, tente novamente'});
+                    }
+                  });
+
+                }
+
+              }else {
+                callback(400, {'Error': 'Token expirado'});
+              }
+            }else {
+              callback(400, {'Error': 'Token inexistente'});
+            }
+          }else {
+            callback(500, {'Error': 'Não foi possível procurar o token, tente novamente'});
+          }
+        });
+
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
+
+    }else {
+      callback(400, {'Error': 'Pelo menos um dos dados opcionais deve ser enviado (imagem, audio)'});
+    }
+
+  }else {
+    callback(400, {'Error': 'Dado obrigatório não enviado (id)'});
+  }
+
+};
+
 
 handlers._tokens.verificarToken = function(token, login, callback) {
 
@@ -946,7 +1059,7 @@ handlers._tokens.verificarToken = function(token, login, callback) {
 
     // Verificar que o token existe
     _data.selectByField('token', { 'id': token }, function(err, tokenData) {
-      if(!err && tokenData){ // Não está passando por essa condição, vou ver se é um "err"
+      if(!err && tokenData){
         if(tokenData.length == 1) {
 
           // Conferir se o token ainda é válido

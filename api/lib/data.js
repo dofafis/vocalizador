@@ -59,6 +59,22 @@ lib.delete = function(table, id, callback) {
     });
 };
 
+lib.moverArquivo = function(nome, arquivo, novoCaminho, callback) {
+
+  var origem = fs.createReadStream(arquivo.path);
+  var destino = fs.createWriteStream(novoCaminho + nome);
+
+  origem.pipe(destino);
+
+  origem.on('end', function() {
+    callback(false);
+  });
+
+  origem.on('error', function(err) {
+    callback({'Error': 'Não foi possível fazer o upload do arquivo'});
+  });
+
+};
 
 // Export the module
 module.exports = lib;
