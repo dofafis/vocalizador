@@ -957,26 +957,22 @@ handlers.uploads.cartoes = function(data,callback){
 handlers.uploads._cartoes = {};
 
 // Uploads Cartões - post
-// Dados obrigatórios: id
-// Dados opcionais: imagem, audio (pelo menos um dos dois deve ser enviado)
+// Dados obrigatórios: id, imagem
+// Dados opcionais: none
 handlers.uploads._cartoes.post = function(data, callback) {
 
   // Conferir dados obrigatórios
   if(data.payload.fields.id){
     var id = typeof(data.payload.fields.id[0]) == 'string' && data.payload.fields.id[0].trim().length > 0 ? data.payload.fields.id[0].trim() : false;
   }
-
-  // Conferir dados opcionais
   if(data.payload.files.imagem){
     var imagem = typeof(data.payload.files.imagem[0]) == 'object' ? data.payload.files.imagem[0] : false;
   }
-  if(data.payload.files.audio){
-    var audio = typeof(data.payload.files.audio[0]) == 'object' ? data.payload.files.audio[0] : false;
-  }
+
   // Conferir dados obrigatórios
   if(id) {
 
-    if(imagem || audio) {
+    if(imagem) {
 
       var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
 
@@ -1012,19 +1008,72 @@ handlers.uploads._cartoes.post = function(data, callback) {
                   });
                 }
 
-                if(audio) {
+              }else {
+                callback(400, {'Error': 'Token expirado'});
+              }
+            }else {
+              callback(400, {'Error': 'Token inexistente'});
+            }
+          }else {
+            callback(500, {'Error': 'Não foi possível procurar o token, tente novamente'});
+          }
+        });
+
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
+
+    }else {
+      callback(400, {'Error': 'Dado obrigatório não enviado (imagem)'});
+    }
+
+  }else {
+    callback(400, {'Error': 'Dado obrigatório não enviado (id)'});
+  }
+
+};
+
+// Uploads Cartões - put
+// Dados obrigatórios: id, imagem
+// Dados opcionais: none
+handlers.uploads._cartoes.put = function(data, callback) {
+
+  // Conferir dados obrigatórios
+  if(data.payload.fields.id){
+    var id = typeof(data.payload.fields.id[0]) == 'string' && data.payload.fields.id[0].trim().length > 0 ? data.payload.fields.id[0].trim() : false;
+  }
+  if(data.payload.files.imagem){
+    var imagem = typeof(data.payload.files.imagem[0]) == 'object' ? data.payload.files.imagem[0] : false;
+  }
+  // Conferir dados obrigatórios
+  if(id) {
+
+    if(imagem) {
+
+      var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+
+      if(token) {
+
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+          if(!err && tokenData) {
+            if(tokenData.length == 1) {
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+
+                if(imagem) {
                   //Pegar a extensão do arquivo
-                  var index = audio.originalFilename.split('.').length - 1;
-                  var extensao = audio.originalFilename.split('.')[index];
-                  _data.moverArquivo(id + '.' + extensao, audio, __dirname + '/../../storage/cartoes/audio/', function(err) {
+                  var index = imagem.originalFilename.split('.').length - 1;
+                  var extensao = imagem.originalFilename.split('.')[index];
+                  var nomeArquivo = id + '.' + extensao;
+                  var novoCaminho = __dirname + '/../../storage/cartoes/imagem/';
+                  _data.moverArquivo(nomeArquivo, imagem, novoCaminho, function(err) {
 
                     if(!err) {
                       callback(200);
-                    }else {
-                      callback(500, {'Error': 'Não foi possível fazer o upload do áudio, tente novamente'});
-                    }
-                  });
+                      }else {
+                        callback(500, {'Error': 'Não foi possível fazer o upload da imagem, tente novamente'});
+                      }
 
+                  });
                 }
 
               }else {
@@ -1043,7 +1092,7 @@ handlers.uploads._cartoes.post = function(data, callback) {
       }
 
     }else {
-      callback(400, {'Error': 'Pelo menos um dos dados opcionais deve ser enviado (imagem, audio)'});
+      callback(400, {'Error': 'Dado obrigatório não enviado (imagem)'});
     }
 
   }else {
