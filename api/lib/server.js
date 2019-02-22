@@ -58,7 +58,7 @@ server.unifiedServer = function(req,res){
    if(typeof(headers['content-type']) == 'string'
       && headers['content-type'].includes('multipart/form-data')
       && trimmedPath.split('/').length == 2
-      && trimmedPath.split('/')[0] == 'upload' ) {
+      && trimmedPath.split('/')[0] == 'arquivos' ) {
 
 
         var form = new multiparty.Form();
@@ -68,7 +68,7 @@ server.unifiedServer = function(req,res){
       if(!err) {
 
         // Check the router for a matching path for a handler. If one is not found, use the notFound handler instead.
-        var chosenHandler = typeof(server.uploads[trimmedPath.split('/')[1]]) !== 'undefined' ? server.uploads[trimmedPath.split('/')[1]] : handlers.notFound;
+        var chosenHandler = typeof(server.arquivos[trimmedPath.split('/')[1]]) !== 'undefined' ? server.arquivos[trimmedPath.split('/')[1]] : handlers.notFound;
         // Construct the data object to send to the handler
         var data = {
           'trimmedPath' : trimmedPath,
@@ -76,25 +76,16 @@ server.unifiedServer = function(req,res){
           'method' : method,
           'headers' : headers,
           'payload' : {'fields': fields, 'files': files},
-          'upload' : true
         };
 
         // Route the request to the handler specified in the router
-        chosenHandler(data,function(statusCode,payload){
-
-          // Use the status code returned from the handler, or set the default status code to 200
-          statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
-
-          // Use the payload returned from the handler, or set the default payload to an empty object
-          payload = typeof(payload) == 'object'? payload : {};
-
-          // Convert the payload to a string
-          var payloadString = JSON.stringify(payload);
+        chosenHandler(data,function(statusCode,file){
 
           // Return the response
-          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Content-Length', file.length);
           res.writeHead(statusCode);
-          res.end(payloadString);
+          res.write(file);
+          res.end();
 
           // If the response is 200, print green, otherwise print red
           if(statusCode == 200){
@@ -131,7 +122,6 @@ server.unifiedServer = function(req,res){
            'method' : method,
            'headers' : headers,
            'payload' : helpers.parseJsonToObject(buffer),
-           'upload' : false
          };
 
          // Route the request to the handler specified in the router
@@ -173,8 +163,8 @@ server.router = {
    'cartoes': handlers.cartoes
  };
 
-server.uploads = {
-  'cartoes': handlers.uploads.cartoes
+server.arquivos = {
+  'cartoes': handlers.arquivos.cartoes
 };
 
  // Init script

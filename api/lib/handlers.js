@@ -5,6 +5,7 @@
 
 // Dependencies
 var fs = require('fs');
+var glob = require('glob');
 var _data = require('./data');
 var helpers = require('./helpers');
 var config = require('./config');
@@ -39,7 +40,7 @@ handlers.usuarios = function(data,callback){
 handlers._usuarios  = {};
 
 // Usuarios - post
-// Dados obrigatórios: nome, sobrenome, login, senha, email
+// Dados obrigatórios: nome, sobrenome, login, senha, email, adm
 // Optional data: none
 handlers._usuarios.post = function(data,callback){
   // Check that all required fields are filled out
@@ -48,6 +49,7 @@ handlers._usuarios.post = function(data,callback){
   var login = typeof(data.payload.login) == 'string' && data.payload.login.trim().length > 0 ? data.payload.login.trim() : false;
   var senha = typeof(data.payload.senha) == 'string' && data.payload.senha.trim().length > 0 ? data.payload.senha.trim() : false;
   var email = typeof(data.payload.email) == 'string' && data.payload.email.trim().length > 0 && data.payload.email.trim().indexOf('@') != -1 ? data.payload.email.trim() : false;
+  var adm = typeof(data.payload.adm) == 'string' && data.payload.adm.toString().trim() === 'ldc2396' ? true : false;
 
   if(nome && sobrenome && login && senha && email){
 
@@ -56,6 +58,7 @@ handlers._usuarios.post = function(data,callback){
     _data.selectByField('usuario', {'login': login}, function(err, results){
       if(!err && results){
         if(results.length > 0){
+
           // Se retornou algum resultado, é porque usuário já existe
           callback(400, {'Error': 'Usuário já existe'});
 
@@ -80,7 +83,8 @@ handlers._usuarios.post = function(data,callback){
                     'sobrenome': sobrenome,
                     'login': login,
                     'senha': senhaEncriptada,
-                    'email': email
+                    'email': email,
+                    'adm': adm
                   };
                   // Agora eu devo inserir o usuário no banco e retornar se consegui ou não
                   _data.insert('usuario', userData, function(err){
@@ -129,7 +133,12 @@ handlers._usuarios.get = function(data,callback){
         _data.selectByField('usuario', {'login': login} , function(err,data){
           if(!err && data) {
             // Remover a senha do usuário do objeto retornado
-            delete data.senha;
+            var userData = {
+              'nome': data.nome,
+              'sobrenome': data.sobrenome,
+              'login': data.login,
+              'email': data.email,
+            };
             callback(200,data);
           } else {
             callback(404);
@@ -512,12 +521,28 @@ handlers._categorias.post = function(data, callback){
         if(tokenData.length == 1){
           if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
 
-            // Já que o token é válido, criar a categoria com o nome e descrição especificado
-            _data.insert('categoria', {'nome': nome, 'descricao': descricao}, function(err) {
-              if(!err){
-                callback(200);
+            // Já que o token é válido, verificar se é de um usuário administrador
+            _data.selectByField('usuario', {'id': tokenData[0].id_usuario}, function(err, userData) {
+              if(!err && userData) {
+                if(userData.length == 1) {
+                  if(userData[0].adm) {
+                    //Já que é tudo válido e é administrador, criar a categoria com o nome e descrição especificado
+                    _data.insert('categoria', {'nome': nome, 'descricao': descricao}, function(err) {
+                      if(!err){
+                        callback(200);
+                      }else {
+                        callback(500, {'Error': 'Não foi possível cadastrar a categoria, tente novamente'});
+                      }
+                    });
+
+                  }else {
+                    callback(400, {'Error': 'Usuário não autorizado a criar categorias'});
+                  }
+                }else {
+                  callback(400, {'Error': 'Usuário dono do token não existe'});
+                }
               }else {
-                callback(500, {'Error': 'Não foi possível cadastrar a categoria, tente novamente'});
+                callback(500, {'Error': 'Não foi possível encontrar o usuário dono do token, tente novamente'});
               }
             });
 
@@ -583,32 +608,48 @@ handlers._categorias.put = function(data, callback) {
         if(!err && tokenData) {
           if(tokenData.length == 1) {
             if( tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+              // Verificar se o usuário dono do token é administrador
+              _data.selectByField('usuario', {'id': tokenData[0].id_usuario}, function(err, userData) {
+                if(!err && userData) {
+                  if(userData.length == 1) {
+                    if(userData[0].adm) {
+                      // Já que tudo é válido e o usuário é administrador, alterar a categoria
+                      _data.selectByField('categoria', {'id': id}, function(err, categoriaData) {
+                        if(!err && categoriaData) {
+                          if(categoriaData.length == 1) {
+                            // Atualiza os campos necessários
+                            if(nome){
+                              categoriaData[0].nome = nome;
+                            }
+                            if(descricao){
+                              categoriaData[0].descricao = descricao;
+                            }
 
-              _data.selectByField('categoria', {'id': id}, function(err, categoriaData) {
-                if(!err && categoriaData) {
-                  if(categoriaData.length == 1) {
-                    // Atualiza os campos necessários
-                    if(nome){
-                      categoriaData[0].nome = nome;
+                            // Atualiza a categoria no banco
+                            _data.update('categoria', {'id': id}, categoriaData[0], function(err) {
+                              if(!err){
+                                callback(200);
+                              }else {
+                                callback(500, {'Error': 'Não foi possível atualizar a categoria, tente novamente'});
+                              }
+                            });
+
+                          }else {
+                            callback(400, {'Error': 'Categoria inexistente'});
+                          }
+                        }else {
+                          callback(500, {'Error': 'Problemas ao procurar a categoria especificada'});
+                        }
+                      });
+
+                    }else {
+
                     }
-                    if(descricao){
-                      categoriaData[0].descricao = descricao;
-                    }
-
-                    // Atualiza a categoria no banco
-                    _data.update('categoria', {'id': id}, categoriaData[0], function(err) {
-                      if(!err){
-                        callback(200);
-                      }else {
-                        callback(500, {'Error': 'Não foi possível atualizar a categoria, tente novamente'});
-                      }
-                    });
-
                   }else {
-                    callback(400, {'Error': 'Categoria inexistente'});
+                    callback(400, {'Error': 'Usuário dono do token não existe'});
                   }
                 }else {
-                  callback(500, {'Error': 'Problemas ao procurar a categoria especificada'});
+                  callback(500, {'Error': 'Não foi possível encontrar o usuário dono do token, tente novamente'});
                 }
               });
 
@@ -647,23 +688,40 @@ handlers._categorias.delete = function(data, callback) {
         if(tokenData.length == 1) {
           if( tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
 
-            _data.selectByField('categoria', {'id': id}, function(err, categoriaData) {
-              if(!err && categoriaData) {
-                if(categoriaData.length == 1) {
-                  // Deleta a categoria no banco
-                  _data.delete('categoria', {'id': id}, function(err) {
-                    if(!err){
-                      callback(200);
-                    }else {
-                      callback(500, {'Error': 'Não foi possível deletar a categoria, tente novamente'});
-                    }
-                  });
+            // Verificar se o usuário é administrador
+            _data.selectByField('usuario', {'id': tokenData[0].id_usuario}, function(err, userData) {
+              if(!err && userData) {
+                if(userData.length == 1) {
+                  if(userData[0].adm) {
+                    // Já que tudo é válido e o usuário é administrador
+                    _data.selectByField('categoria', {'id': id}, function(err, categoriaData) {
+                      if(!err && categoriaData) {
+                        if(categoriaData.length == 1) {
+                          // Deleta a categoria no banco
+                          _data.delete('categoria', {'id': id}, function(err) {
+                            if(!err){
+                              callback(200);
+                            }else {
+                              callback(500, {'Error': 'Não foi possível deletar a categoria, tente novamente'});
+                            }
+                          });
 
+                        }else {
+                          callback(400, {'Error': 'Categoria inexistente'});
+                        }
+                      }else {
+                        callback(500, {'Error': 'Problemas ao procurar a categoria especificada'});
+                      }
+                    });
+
+                  }else {
+                    callback(400, {'Error': 'Usuário não autorizado deletar categoria'});
+                  }
                 }else {
-                  callback(400, {'Error': 'Categoria inexistente'});
+                  callback(400, {'Error': 'Usuário dono do token não existe'});
                 }
               }else {
-                callback(500, {'Error': 'Problemas ao procurar a categoria especificada'});
+                callback(500, {'Error': 'Não foi possível encontrar o usuário dono do token, tente novamente'});
               }
             });
 
@@ -716,19 +774,36 @@ handlers._cartoes.post = function(data, callback) {
         if(!err && tokenData) {
           if(tokenData.length == 1) {
             if( tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+              // Verificar se o dono do token é administrador
+              _data.selectByField('usuario', {'id': tokenData[0].id_usuario}, function(err, userData) {
+                if(!err && userData) {
+                  if(userData.length == 1) {
+                    if(userData[0].adm) {
+                      // Já que é tudo válido e o usuário é administrador
+                      var cartaoData = {
+                        'id_categoria': id_categoria,
+                        'nome': nome
+                      };
 
-              var cartaoData = {
-                'id_categoria': id_categoria,
-                'nome': nome
-              };
+                      _data.insert('cartao', cartaoData, function(err) {
+                        if(!err) {
+                          callback(200);
+                        }else {
+                          callback(500, {'Error': 'Não foi possível cadastrar o cartão, tente novamente'});
+                        }
+                      });
 
-              _data.insert('cartao', cartaoData, function(err) {
-                if(!err) {
-                  callback(200);
+                    }else {
+                      callback(400, {'Error': 'Usuário não autorizado a criar cartões'});
+                    }
+                  }else {
+                    callback(400, {'Error': 'Usuário dono do token não existe'});
+                  }
                 }else {
-                  callback(500, {'Error': 'Não foi possível cadastrar o cartão, tente novamente'});
+                  callback(500, {'Error': 'Não foi possível encontrar o usuário dono do token, tente novamente'});
                 }
               });
+
 
             }else {
               callback(401, {'Error': 'Token expirado'});
@@ -832,33 +907,50 @@ handlers._cartoes.put = function(data, callback) {
 
               if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
 
-                _data.selectByField('cartao', {'id': id}, function(err, cartaoData) {
+                // Verificar se o dono do token é administrador
+                _data.selectByField('usuario', {'id': tokenData[0].id_usuario}, function(err, userData) {
+                  if(!err && userData) {
+                    if(userData.length == 1) {
+                      if(userData[0].adm) {
+                        // Já que é tudo válido e o usuário é administrador
+                        _data.selectByField('cartao', {'id': id}, function(err, cartaoData) {
 
-                  if(!err && cartaoData) {
-                    if(cartaoData.length == 1) {
-                      if(id_categoria) {
-                        cartaoData[0].id_categoria = id_categoria;
+                          if(!err && cartaoData) {
+                            if(cartaoData.length == 1) {
+                              if(id_categoria) {
+                                cartaoData[0].id_categoria = id_categoria;
+                              }
+                              if(nome) {
+                                cartaoData[0].nome = nome;
+                              }
+
+                              _data.update('cartao', {'id': id}, cartaoData[0], function(err) {
+                                if(!err) {
+
+                                  callback(200);
+
+                                }else {
+                                  callback(500, {'Error': 'Não foi possível atualizar o cartao, tente novamente'});
+                                }
+                              });
+                            } else {
+                              callback(400, {'Error': 'Cartão inexistente'});
+                            }
+                          }else {
+                            callback(500, {'Error': 'Problemas ao procurar o cartao, tente novamente'});
+                          }
+
+                        });
+
+                      }else {
+                        callback(400, {'Error': 'Usuário não autorizado a criar cartões'});
                       }
-                      if(nome) {
-                        cartaoData[0].nome = nome;
-                      }
-
-                      _data.update('cartao', {'id': id}, cartaoData[0], function(err) {
-                        if(!err) {
-
-                          callback(200);
-
-                        }else {
-                          callback(500, {'Error': 'Não foi possível atualizar o cartao, tente novamente'});
-                        }
-                      });
-                    } else {
-                      callback(400, {'Error': 'Cartão inexistente'});
+                    }else {
+                      callback(400, {'Error': 'Usuário dono do token não existe'});
                     }
                   }else {
-                    callback(500, {'Error': 'Problemas ao procurar o cartao, tente novamente'});
+                    callback(500, {'Error': 'Não foi possível encontrar o usuário dono do token, tente novamente'});
                   }
-
                 });
 
               }else {
@@ -908,14 +1000,31 @@ handlers._cartoes.delete = function(data, callback) {
 
             if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
 
-              _data.delete('cartao', {'id': id}, function(err) {
+              // Verificar se o dono do token é administrador
+              _data.selectByField('usuario', {'id': tokenData[0].id_usuario}, function(err, userData) {
+                if(!err && userData) {
+                  if(userData.length == 1) {
+                    if(userData[0].adm) {
+                      // Já que é tudo válido e o usuário é administrador
+                      _data.delete('cartao', {'id': id}, function(err) {
 
-                if(!err) {
-                  callback(200);
+                        if(!err) {
+                          callback(200);
+                        }else {
+                          callback(500, {'Error': 'Não foi possível deletar o cartão, tente novamente'});
+                        }
+
+                      });
+
+                    }else {
+                      callback(400, {'Error': 'Usuário não autorizado a criar cartões'});
+                    }
+                  }else {
+                    callback(400, {'Error': 'Usuário dono do token não existe'});
+                  }
                 }else {
-                  callback(500, {'Error': 'Não foi possível deletar o cartão, tente novamente'});
+                  callback(500, {'Error': 'Não foi possível encontrar o usuário dono do token, tente novamente'});
                 }
-
               });
 
             }else {
@@ -940,26 +1049,26 @@ handlers._cartoes.delete = function(data, callback) {
   }
 }
 
-// Container de todas os handlers de uploads
-handlers.uploads = {};
+// Container de todas os handlers de arquivos
+handlers.arquivos = {};
 
 // Confere o método e redirecionar para a rota correta de upload
-handlers.uploads.cartoes = function(data,callback){
+handlers.arquivos.cartoes = function(data,callback){
   var acceptableMethods = ['post','get','put','delete'];
   if(acceptableMethods.indexOf(data.method) > -1){
-    handlers.uploads._cartoes[data.method](data,callback);
+    handlers.arquivos._cartoes[data.method](data,callback);
   } else {
     callback(405);
   }
 };
 
-// Container das rotas de uploads de cartões
-handlers.uploads._cartoes = {};
+// Container das rotas de arquivos de cartões
+handlers.arquivos._cartoes = {};
 
-// Uploads Cartões - post
+// arquivos Cartões - post
 // Dados obrigatórios: id, imagem
 // Dados opcionais: none
-handlers.uploads._cartoes.post = function(data, callback) {
+handlers.arquivos._cartoes.post = function(data, callback) {
 
   // Conferir dados obrigatórios
   if(data.payload.fields.id){
@@ -983,30 +1092,47 @@ handlers.uploads._cartoes.post = function(data, callback) {
             if(tokenData.length == 1) {
               if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
 
-                if(imagem) {
-                  //Pegar a extensão do arquivo
-                  var index = imagem.originalFilename.split('.').length - 1;
-                  var extensao = imagem.originalFilename.split('.')[index];
-                  var nomeArquivo = id + '.' + extensao;
-                  var novoCaminho = __dirname + '/../../storage/cartoes/imagem/';
-                  fs.access(novoCaminho + nomeArquivo, fs.F_OK, (err) =>{
+                // Verificar se o dono do token é administrador
+                _data.selectByField('usuario', {'id': tokenData[0].id_usuario}, function(err, userData) {
+                  if(!err && userData) {
+                    if(userData.length == 1) {
+                      if(userData[0].adm) {
+                        // Já que é tudo válido e o usuário é administrador
+                        if(imagem) {
+                          //Pegar a extensão do arquivo
+                          var index = imagem.originalFilename.split('.').length - 1;
+                          var extensao = imagem.originalFilename.split('.')[index];
+                          var nomeArquivo = id + '.' + extensao;
+                          var novoCaminho = __dirname + '/../../storage/cartoes/imagem/';
+                          fs.access(novoCaminho + nomeArquivo, fs.F_OK, (err) =>{
 
-                    if(!err){
-                      callback(400, {'Error': 'Essa rota é para inserir uma imagem e não atualizá-la, para substituir a imagem atual utilize um PUT'});
-                    }else {
-                      _data.moverArquivo(nomeArquivo, imagem, novoCaminho, function(err) {
+                            if(!err){
+                              callback(400, {'Error': 'Essa rota é para inserir uma imagem e não atualizá-la, para substituir a imagem atual utilize um PUT'});
+                            }else {
+                              _data.moverArquivo(nomeArquivo, imagem, novoCaminho, function(err) {
 
-                        if(!err) {
-                          callback(200);
-                        }else {
-                          callback(500, {'Error': 'Não foi possível fazer o upload da imagem, tente novamente'});
+                                if(!err) {
+                                  callback(200);
+                                }else {
+                                  callback(500, {'Error': 'Não foi possível fazer o upload da imagem, tente novamente'});
+                                }
+
+                              });
+
+                            }
+                          });
                         }
 
-                      });
-
+                      }else {
+                        callback(400, {'Error': 'Usuário não autorizado a criar cartões'});
+                      }
+                    }else {
+                      callback(400, {'Error': 'Usuário dono do token não existe'});
                     }
-                  });
-                }
+                  }else {
+                    callback(500, {'Error': 'Não foi possível encontrar o usuário dono do token, tente novamente'});
+                  }
+                });
 
               }else {
                 callback(400, {'Error': 'Token expirado'});
@@ -1033,10 +1159,71 @@ handlers.uploads._cartoes.post = function(data, callback) {
 
 };
 
-// Uploads Cartões - put
+
+
+// Arquivos Cartões - get
+// Dados obrigatórios: id
+// Dados opcionais: none
+handlers.arquivos._cartoes.get = function(data, callback) {
+
+  // Conferir dados obrigatórios
+  var id = typeof(data.queryStringObject.id) == 'string' && data.queryStringObject.id.trim().length > 0 ? data.queryStringObject.id : false;
+
+  if(id) {
+
+    var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token : false;
+    if(token) {
+
+      _data.selectByField('token', {'id': token}, function(err, tokenData) {
+        if(!err && tokenData) {
+          if(tokenData.length == 1) {
+            if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+              // Prepara imagem para envio
+              glob(__dirname + '/../../storage/cartoes/imagem/' + id + '.*', {}, function(err, files) {
+                if(!err && files) {
+                  if(files.length == 1) {
+                    var caminhoImagem = files[0];
+                    fs.readFile(caminhoImagem, function(err, arquivo) {
+                      if(!err && arquivo) {
+                        callback(200, arquivo);
+                      }else {
+                        callback(500, {'Error': 'Não foi possível enviar a imagem, tente novamente ou verifique o id enviado'});
+                      }
+                    });
+
+                  }else {
+                    callback(400, {'Error': 'A imagem deste cartão não existe, solicite ao administrador o upload da mesma'});
+                  }
+                }else {
+                  callback(500, {'Error': 'Não foi possível encontrar o arquivo especificado, tente novamente ou verifique sua requisição'})
+                }
+              });
+            }else {
+              callback(400, {'Error': 'Token expirado'});
+            }
+          }else {
+            callback(400, {'Error': 'Token não existe'});
+          }
+        }else {
+          callback(500, {'Error': 'Não foi possível encontrar o token, tente novamente'});
+        }
+      });
+
+    }else {
+      callback(400, {'Error': 'Token não enviado'});
+    }
+
+  }else {
+    callback(400, {'Error': 'Faltando dados obrigatórios(id)'});
+  }
+};
+
+
+
+// arquivos Cartões - put
 // Dados obrigatórios: id, imagem
 // Dados opcionais: none
-handlers.uploads._cartoes.put = function(data, callback) {
+handlers.arquivos._cartoes.put = function(data, callback) {
 
   // Conferir dados obrigatórios
   if(data.payload.fields.id){
@@ -1059,22 +1246,42 @@ handlers.uploads._cartoes.put = function(data, callback) {
             if(tokenData.length == 1) {
               if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
 
-                if(imagem) {
-                  //Pegar a extensão do arquivo
-                  var index = imagem.originalFilename.split('.').length - 1;
-                  var extensao = imagem.originalFilename.split('.')[index];
-                  var nomeArquivo = id + '.' + extensao;
-                  var novoCaminho = __dirname + '/../../storage/cartoes/imagem/';
-                  _data.moverArquivo(nomeArquivo, imagem, novoCaminho, function(err) {
 
-                    if(!err) {
-                      callback(200);
+                // Verificar se o dono do token é administrador
+                _data.selectByField('usuario', {'id': tokenData[0].id_usuario}, function(err, userData) {
+                  if(!err && userData) {
+                    if(userData.length == 1) {
+                      if(userData[0].adm) {
+                        // Já que é tudo válido e o usuário é administrador
+                        if(imagem) {
+                          //Pegar a extensão do arquivo
+                          var index = imagem.originalFilename.split('.').length - 1;
+                          var extensao = imagem.originalFilename.split('.')[index];
+                          var nomeArquivo = id + '.' + extensao;
+                          var novoCaminho = __dirname + '/../../storage/cartoes/imagem/';
+                          _data.moverArquivo(nomeArquivo, imagem, novoCaminho, function(err) {
+
+                            if(!err) {
+                              callback(200);
+                              }else {
+                                callback(500, {'Error': 'Não foi possível fazer o upload da imagem, tente novamente'});
+                              }
+
+                          });
+                        }
+
                       }else {
-                        callback(500, {'Error': 'Não foi possível fazer o upload da imagem, tente novamente'});
+                        callback(400, {'Error': 'Usuário não autorizado a criar cartões'});
                       }
+                    }else {
+                      callback(400, {'Error': 'Usuário dono do token não existe'});
+                    }
+                  }else {
+                    callback(500, {'Error': 'Não foi possível encontrar o usuário dono do token, tente novamente'});
+                  }
+                });
 
-                  });
-                }
+
 
               }else {
                 callback(400, {'Error': 'Token expirado'});
