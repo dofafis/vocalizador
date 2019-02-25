@@ -1,0 +1,32 @@
+<mat-toolbar class="background-color">
+  <span class="span">Cadastrar-se</span>
+</mat-toolbar>
+<mat-card class="example-card">
+  <mat-card-content>
+    <!-- CONTENT HERE -->
+    <form class="my-form">
+      <!-- FORM FIELDS HERE -->
+      <mat-form-field class="full-width">
+        <mat-label>Nome</mat-label>
+        <input  matInput  placeholder="Nome"  name="fname"  required>
+      </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>Sobrenome</mat-label>
+        <input  matInput  placeholder="Sobrenome" name="lname"  required>
+      </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>Email</mat-label>
+        <input  matInput  placeholder="Email" name="email">
+      </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>Senha</mat-label>
+        <input  matInput  placeholder="Senha"  name="password">
+      </mat-form-field>
+    </form>
+  </mat-card-content>
+  <mat-card-actions>
+    <!-- REGISTER BUTTON HERE -->
+    <button mat-raised-button (click)="register()" class="background-color">CADASTRAR</button>
+
+  </mat-card-actions>
+</mat-card>

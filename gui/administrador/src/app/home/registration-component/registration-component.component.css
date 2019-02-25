@@ -1,0 +1,29 @@
+.span {
+  margin: auto;
+}
+
+.my-form{
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.full-width {
+  max-width: 350px;
+  min-width: 300px;
+}
+
+.example-card {
+  min-width: 350px;
+  max-width: 400px;
+
+  min-height: 400px;
+  margin-top: 10%;
+  margin: auto;
+  text-align: center;
+  background-color: white;
+}
+
+.background-color {
+  background-color: lightblue;
+}

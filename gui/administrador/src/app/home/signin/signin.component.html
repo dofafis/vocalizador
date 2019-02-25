@@ -1,0 +1,28 @@
+<mat-toolbar class="background-color">
+  <span class="span">Entrar</span>
+</mat-toolbar>
+
+
+<mat-card class="example-card">
+  <mat-card-content>
+    <br/>
+    <form class="my-form">
+      <br/>
+      <mat-form-field class="full-width">
+        <mat-label>Email</mat-label>
+        <input  matInput  placeholder="Email" name="email">
+      </mat-form-field>
+      <br/>
+      <br/>
+      <mat-form-field class="full-width">
+        <mat-label>Senha</mat-label>
+        <input  matInput  placeholder="Senha" name="password">
+      </mat-form-field>
+      <br/>
+      <br/>
+    </form>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button (click)="login()" class="background-color" >LOGIN</button>
+  </mat-card-actions>
+</mat-card>

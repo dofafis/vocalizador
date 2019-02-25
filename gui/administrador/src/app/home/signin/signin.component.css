@@ -1,0 +1,21 @@
+.span {
+  margin: auto;
+}
+
+.example-card {
+  max-width: 350px;
+  min-height: 400px;
+  margin-top: 10%;
+  margin: auto;
+  text-align: center;
+  background-color: white;
+}
+
+.full-width {
+  max-width: 350px;
+  min-width: 300px;
+}
+
+.background-color {
+  background-color: lightblue;
+}

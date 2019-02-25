@@ -90,7 +90,7 @@ server.unifiedServer = function(req,res){
             res.setHeader('Content-Type', 'image/png');
             res.setHeader('Content-Length', stat.size);
             res.writeHead(statusCode);
-            
+
             var readStream = fs.createReadStream(filePath);
             readStream.pipe(res);
 
