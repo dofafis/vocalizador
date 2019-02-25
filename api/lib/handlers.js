@@ -1183,13 +1183,7 @@ handlers.arquivos._cartoes.get = function(data, callback) {
                 if(!err && files) {
                   if(files.length == 1) {
                     var caminhoImagem = files[0];
-                    fs.readFile(caminhoImagem, function(err, arquivo) {
-                      if(!err && arquivo) {
-                        callback(200, arquivo);
-                      }else {
-                        callback(500, {'Error': 'Não foi possível enviar a imagem, tente novamente ou verifique o id enviado'});
-                      }
-                    });
+                    callback(200, caminhoImagem);
 
                   }else {
                     callback(400, {'Error': 'A imagem deste cartão não existe, solicite ao administrador o upload da mesma'});

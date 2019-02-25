@@ -79,13 +79,36 @@ server.unifiedServer = function(req,res){
         };
 
         // Route the request to the handler specified in the router
-        chosenHandler(data,function(statusCode,file){
+        chosenHandler(data,function(statusCode, payload){
 
-          // Return the response
-          res.setHeader('Content-Length', file.length);
-          res.writeHead(statusCode);
-          res.write(file);
-          res.end();
+          if( typeof(payload) == 'string' ){
+            var filePath = payload;
+            var stat = fs.statSync(filePath);
+
+
+            // Return the response
+            res.setHeader('Content-Type', 'image/png');
+            res.setHeader('Content-Length', stat.size);
+            res.writeHead(statusCode);
+            
+            var readStream = fs.createReadStream(filePath);
+            readStream.pipe(res);
+
+          }else {
+            // Use the status code returned from the handler, or set the default status code to 200
+            statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
+
+            // Use the payload returned from the handler, or set the default payload to an empty object
+            payload = typeof(payload) == 'object'? payload : {};
+
+            // Convert the payload to a string
+            var payloadString = JSON.stringify(payload);
+
+            // Return the response
+            res.setHeader('Content-Type', 'application/json');
+            res.writeHead(statusCode);
+            res.end(payloadString);
+          }
 
           // If the response is 200, print green, otherwise print red
           if(statusCode == 200){
