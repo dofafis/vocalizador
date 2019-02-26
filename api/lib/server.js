@@ -147,31 +147,45 @@ server.unifiedServer = function(req,res){
            'payload' : helpers.parseJsonToObject(buffer),
          };
 
-         // Route the request to the handler specified in the router
-         chosenHandler(data,function(statusCode,payload){
+         if(method === 'options') {
+          res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+          res.setHeader('Access-Control-Allow-Credentials', true);
+          res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept");
+          res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+          res.writeHead(204);
+          res.end();
+         }else {
 
-           // Use the status code returned from the handler, or set the default status code to 200
-           statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
-
-           // Use the payload returned from the handler, or set the default payload to an empty object
-           payload = typeof(payload) == 'object'? payload : {};
-
-           // Convert the payload to a string
-           var payloadString = JSON.stringify(payload);
-
-           // Return the response
-           res.setHeader('Content-Type', 'application/json; charset=UTF-8');
-           res.writeHead(statusCode);
-
-           res.end(payloadString);
-
-           // If the response is 200, print green, otherwise print red
-           if(statusCode == 200){
-             debug('\x1b[32m%s\x1b[0m',method.toUpperCase()+' /'+trimmedPath+' '+statusCode);
-           } else {
-             debug('\x1b[31m%s\x1b[0m',method.toUpperCase()+' /'+trimmedPath+' '+statusCode);
-           }
-         });
+           
+           // Route the request to the handler specified in the router
+           chosenHandler(data,function(statusCode,payload){
+             
+             // Use the status code returned from the handler, or set the default status code to 200
+             statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
+             
+             // Use the payload returned from the handler, or set the default payload to an empty object
+             payload = typeof(payload) == 'object'? payload : {};
+             
+             // Convert the payload to a string
+             var payloadString = JSON.stringify(payload);
+             
+             // Return the response
+             res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+             res.setHeader('Access-Control-Allow-Credentials', true);
+             res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept");
+             res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+             res.writeHead(statusCode);
+             
+             res.end(payloadString);
+             
+             // If the response is 200, print green, otherwise print red
+             if(statusCode == 200){
+                debug('\x1b[32m%s\x1b[0m',method.toUpperCase()+' /'+trimmedPath+' '+statusCode);
+              } else {
+                debug('\x1b[31m%s\x1b[0m',method.toUpperCase()+' /'+trimmedPath+' '+statusCode);
+              }
+            });
+          }
 
      });
    }

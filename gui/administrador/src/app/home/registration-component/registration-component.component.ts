@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, ElementRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Usuario } from '../usuario';
 import { RegistrationService } from './registration.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registration-component',
@@ -14,7 +15,9 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
 
   constructor(private elementRef: ElementRef,
               private formBuilder: FormBuilder,
-              private registrationService: RegistrationService) { }
+              private registrationService: RegistrationService,
+              private router: Router
+) { }
 
   ngOnInit() {
     this.registrationForm = this.formBuilder.group({
