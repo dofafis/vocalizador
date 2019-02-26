@@ -6,26 +6,31 @@
   <mat-card-content>
     <!-- CONTENT HERE -->
     <br/>
-    <form class="my-form">
+    <form class="my-form" [formGroup]="registrationForm" >
       <!-- FORM FIELDS HERE -->
       <mat-form-field class="full-width">
         <mat-label>Nome</mat-label>
-        <input  matInput  placeholder="Nome"  name="fname"  required>
+        <input formControlName="nome" matInput  placeholder="Nome"  name="fname"  required>
       </mat-form-field>
       <br/>
       <mat-form-field class="full-width">
         <mat-label>Sobrenome</mat-label>
-        <input  matInput  placeholder="Sobrenome" name="lname"  required>
+        <input formControlName="sobrenome" matInput  placeholder="Sobrenome" name="lname"  required>
+      </mat-form-field>
+      <br/>
+      <mat-form-field class="full-width">
+        <mat-label>Login</mat-label>
+        <input formControlName="login" matInput  placeholder="Login" name="login"  required>
       </mat-form-field>
       <br/>
       <mat-form-field class="full-width">
         <mat-label>Email</mat-label>
-        <input  matInput  placeholder="Email" name="email">
+        <input formControlName="email" matInput  placeholder="Email" name="email">
       </mat-form-field>
       <br/>
       <mat-form-field class="full-width">
         <mat-label>Senha</mat-label>
-        <input  matInput  placeholder="Senha"  name="password">
+        <input formControlName="senha" matInput  placeholder="Senha"  name="password">
       </mat-form-field>
       <br/>
     </form>

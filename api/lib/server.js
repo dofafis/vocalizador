@@ -87,8 +87,7 @@ server.unifiedServer = function(req,res){
 
 
             // Return the response
-            res.setHeader('Content-Type', 'image/png');
-            res.setHeader('Content-Length', stat.size);
+            res.setHeader('Content-Type', 'application/json; charset=UTF-8');
             res.writeHead(statusCode);
 
             var readStream = fs.createReadStream(filePath);
@@ -105,7 +104,7 @@ server.unifiedServer = function(req,res){
             var payloadString = JSON.stringify(payload);
 
             // Return the response
-            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Type', 'application/json; charset=UTF-8');
             res.writeHead(statusCode);
             res.end(payloadString);
           }
@@ -118,7 +117,7 @@ server.unifiedServer = function(req,res){
           }
         });
       }else {
-        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
         res.writeHead(500);
         res.end({'Error': 'Não foi possível fazer upload do arquivo'});
       }
@@ -133,6 +132,7 @@ server.unifiedServer = function(req,res){
          buffer += decoder.write(data);
      });
      req.on('end', function() {
+    
          buffer += decoder.end();
 
          // Check the router for a matching path for a handler. If one is not found, use the notFound handler instead.
@@ -160,8 +160,9 @@ server.unifiedServer = function(req,res){
            var payloadString = JSON.stringify(payload);
 
            // Return the response
-           res.setHeader('Content-Type', 'application/json');
+           res.setHeader('Content-Type', 'application/json; charset=UTF-8');
            res.writeHead(statusCode);
+
            res.end(payloadString);
 
            // If the response is 200, print green, otherwise print red
