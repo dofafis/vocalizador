@@ -5,9 +5,10 @@ import { RegistrationComponent } from './registration-component/registration-com
 import { SigninComponent } from './signin/signin.component';
 import { MyMaterialModule } from '../material.module';
 import { HttpClientModule } from '@angular/common/http';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 @NgModule({
-    declarations: [ RegistrationComponent, SigninComponent ],
+    declarations: [ RegistrationComponent, SigninComponent, DashboardComponent ],
     imports: [
         CommonModule,
         ReactiveFormsModule,

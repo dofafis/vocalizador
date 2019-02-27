@@ -6,33 +6,42 @@
   <mat-card-content>
     <!-- CONTENT HERE -->
     <br/>
+    <mat-error *ngIf="erroDeCadastro.length > 0"> {{ erroDeCadastro }} </mat-error>
+    <br/>
+    <br/>
     <form class="my-form" [formGroup]="registrationForm" >
       <!-- FORM FIELDS HERE -->
       <mat-form-field class="full-width">
         <mat-label>Nome</mat-label>
-        <input formControlName="nome" matInput  placeholder="Nome"  name="fname"  required>
+        <input formControlName="nome" matInput  placeholder="Nome" name="fname"  required>
+        <mat-error *ngIf="hasError('nome', 'required')">Nome é um campo obrigatório</mat-error>
       </mat-form-field>
       <br/>
       <mat-form-field class="full-width">
         <mat-label>Sobrenome</mat-label>
         <input formControlName="sobrenome" matInput  placeholder="Sobrenome" name="lname"  required>
+        <mat-error *ngIf="hasError('sobrenome', 'required')">Sobrenome é um campo obrigatório</mat-error>
       </mat-form-field>
       <br/>
       <mat-form-field class="full-width">
         <mat-label>Login</mat-label>
         <input formControlName="login" matInput  placeholder="Login" name="login"  required>
+        <mat-error *ngIf="hasError('login', 'required')">Login é um campo obrigatório</mat-error>
       </mat-form-field>
       <br/>
       <mat-form-field class="full-width">
         <mat-label>Email</mat-label>
         <input formControlName="email" matInput  placeholder="Email" name="email">
+        <mat-error *ngIf="hasError('email', 'required')">Email é um campo obrigatório</mat-error>
       </mat-form-field>
       <br/>
-      <mat-form-field class="full-width">
-        <mat-label>Senha</mat-label>
-        <input formControlName="senha" matInput  placeholder="Senha"  name="password">
-      </mat-form-field>
-      <br/>
+        <mat-form-field class="full-width">
+          <mat-label>Senha</mat-label>
+          <input formControlName="senha" matInput  placeholder="Senha" type="password" name="password">
+          <mat-error *ngIf="hasError('senha', 'required')">Senha é um campo obrigatório</mat-error>
+          <mat-error *ngIf="hasError('senha', 'minlength')">A senha deve conter no mínimo 4 caracteres</mat-error>
+        </mat-form-field>
+        <br/>
     </form>
     <br/>
   </mat-card-content>

@@ -13,6 +13,8 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
 
   registrationForm: FormGroup;
 
+  erroDeCadastro = '';
+
   constructor(private elementRef: ElementRef,
               private formBuilder: FormBuilder,
               private registrationService: RegistrationService,
@@ -25,7 +27,7 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
       sobrenome: ['', Validators.required],
       login: ['', Validators.required],
       email: ['', Validators.required],
-      senha: ['', Validators.required]
+      senha: ['', [Validators.required, Validators.minLength(4)]]
     });
   }
 
@@ -34,14 +36,33 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
   }
 
   register() {
-    if(this.registrationForm.valid) {
-      console.log('whatahell!!??');
+    if (this.registrationForm.valid) {
       const usuario = this.registrationForm.getRawValue() as Usuario;
       this.registrationService.criarUsuario(usuario)
         .subscribe(
-          (status) => console.log(status),
-          err => console.log(err)
+          (status) => {
+            this.erroDeCadastro = '';
+            this.router.navigate(['login']);
+          },
+          response => {
+            console.log(response.error.Error);
+            if (typeof(response) === 'undefined'
+            || typeof(response.error) === 'undefined'
+            || typeof(response.error.Error) === 'undefined') {
+              this.erroDeCadastro = 'Desculpe, o sistema está fora do ar, tente novamente mais tarde.';
+            } else if (response.error.Error.includes('err001')) {
+              this.erroDeCadastro = 'O login ou email já foram cadastrados.';
+            } else {
+              this.erroDeCadastro = 'Houve algum problema, atualize a página ou verifique sua conexão.';
+            }
+          }
         );
     }
   }
+
+  public hasError = (controlName: string, errorName: string) => {
+    return this.registrationForm.controls[controlName].hasError(errorName);
+  }
+
+
 }

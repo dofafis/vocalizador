@@ -6,23 +6,27 @@
 <mat-card class="example-card">
   <mat-card-content>
     <br/>
-    <form class="my-form">
+    <mat-error *ngIf="erroDeLogin.length > 0"> {{ erroDeLogin }} </mat-error>
+    <br/>
+    <form class="my-form" [formGroup]="loginForm">
       <br/>
       <mat-form-field class="full-width">
-        <mat-label>Email</mat-label>
-        <input  matInput  placeholder="Email" name="email">
+        <mat-label>Login</mat-label>
+        <input formControlName="login" matInput  placeholder="Login" name="login">
+        <mat-error *ngIf="hasError('login', 'required')">Login é um campo obrigatório</mat-error>
       </mat-form-field>
       <br/>
       <br/>
       <mat-form-field class="full-width">
         <mat-label>Senha</mat-label>
-        <input  matInput  placeholder="Senha" name="password">
+        <input formControlName="senha" matInput  placeholder="Senha" type="password" name="password">
+        <mat-error *ngIf="hasError('senha', 'required')">Senha é um campo obrigatório</mat-error>
+        <mat-error *ngIf="hasError('senha', 'minlength')">A senha deve conter no mínimo 4 caracteres</mat-error>
       </mat-form-field>
-      <br/>
       <br/>
     </form>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-raised-button (click)="login()" class="background-color" >LOGIN</button>
+    <button mat-raised-button (click)="signin()" class="background-color" >LOGIN</button>
   </mat-card-actions>
 </mat-card>

@@ -8,6 +8,7 @@ import { MyMaterialModule } from './material.module';
 import { HomeModule } from './home/home.module';
 import { RegistrationComponent } from './home/registration-component/registration-component.component';
 import { SigninComponent } from './home/signin/signin.component';
+import { DashboardComponent } from './home/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,8 @@ import { SigninComponent } from './home/signin/signin.component';
       { path: '', redirectTo: '/', pathMatch: 'full' },
       { path: 'register', component: RegistrationComponent },
       { path: 'login', component: SigninComponent },
+      { path: 'dashboard', component: DashboardComponent },
+
     ])
   ],
   providers: [],

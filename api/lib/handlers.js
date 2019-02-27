@@ -60,7 +60,7 @@ handlers._usuarios.post = function(data,callback){
         if(results.length > 0){
 
           // Se retornou algum resultado, é porque usuário já existe
-          callback(400, {'Error': 'Usuário já existe'});
+          callback(400, {'Error': 'Usuário já existe (err001)'});
 
         }else {
 
@@ -68,7 +68,7 @@ handlers._usuarios.post = function(data,callback){
             if(!err && results){
               if(results.length > 0){
                 // Se retornou algum resultado, é porque usuário já existe
-                callback(400, {'Error': 'Usuário já existe'});
+                callback(400, {'Error': 'Usuário já existe (err001)'});
 
               }else {
 
@@ -296,7 +296,7 @@ handlers._tokens.post = function(data, callback){
   if(login && senha){
     // Procurar usuário com o login recebido
     _data.selectByField('usuario', {'login': login}, function(err,userData){
-      if(!err && userData){// @TODO VERIFICAR ESSE IF E O PORQUE DE ELE NÃO DAR VERDDADEIRO
+      if(!err && userData){
         if(userData.length == 1) {
 
           // Encriptar a senha recebida na request e comparar com o usuário que foi encontrado
@@ -320,15 +320,15 @@ handlers._tokens.post = function(data, callback){
               }
             });
           }
-           else {
-            callback(400, { 'Error' : 'Senha incorreta'});
+          else {
+            callback(400, { 'Error' : 'Senha incorreta (err001)'});
           }
 
         } else {
-          callback(500, { 'Error': 'Problemas ao encontrar o usuário, tente novamente' });
+          callback(400, { 'Error' : 'Usuário não cadastrado (err002)' });
         }
       } else {
-        callback(400, { 'Error1' : 'Usuário não cadastrado' });
+        callback(500, { 'Error': 'Problemas ao encontrar o usuário, tente novamente' });
       }
     });
   } else {
@@ -438,56 +438,6 @@ handlers._tokens.delete = function(data,callback){
     });
   } else {
     callback(400,{'Error' : 'Missing required field'})
-  }
-};
-
-
-// Tokens - post
-// Dados obrigatórios: login, senha
-// Dados opcionais: none
-handlers._tokens.post = function(data, callback){
-  var login = typeof(data.payload.login) == 'string' && data.payload.login.trim().length > 0 ? data.payload.login.trim() : false;
-  var senha = typeof(data.payload.senha) == 'string' && data.payload.senha.trim().length > 0 ? data.payload.senha.trim() : false;
-  if(login && senha){
-    // Procurar usuário com o login recebido
-    _data.selectByField('usuario', {'login': login}, function(err,userData){
-      if(!err && userData){// @TODO VERIFICAR ESSE IF E O PORQUE DE ELE NÃO DAR VERDDADEIRO
-        if(userData.length == 1) {
-
-          // Encriptar a senha recebida na request e comparar com o usuário que foi encontrado
-          var senhaEncriptada = helpers.hash(senha);
-          if(senhaEncriptada == userData[0].senha){
-            // Se o usuário existe e a senha dele está correta, criar um novo token
-            var tokenId = helpers.createRandomString(20);
-            var validade = helpers.jsDateToMysqlDate(new Date(Date.now() + 1000 * 60 * 60));
-            var tokenObject = {
-              'id' : tokenId,
-              'id_usuario' : userData[0].id,
-              'validade' : validade
-            };
-
-            // Store the token
-            _data.insert('token', tokenObject, function(err) {
-              if(!err){
-                callback(200, tokenObject);
-              } else {
-                callback(500, { 'Error' : 'Não foi possível criar o token, tente novamente' });
-              }
-            });
-          }
-           else {
-            callback(400, { 'Error' : 'Senha incorreta'});
-          }
-
-        } else {
-          callback(500, { 'Error': 'Problemas ao encontrar o usuário, tente novamente' });
-        }
-      } else {
-        callback(400, { 'Error1' : 'Usuário não cadastrado' });
-      }
-    });
-  } else {
-    callback(400, { 'Error' : 'Missing required field(s).' });
   }
 };
 
