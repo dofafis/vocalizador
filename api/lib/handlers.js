@@ -513,13 +513,13 @@ handlers._categorias.post = function(data, callback){
 }
 
 // Categorias - get
-// Dados obrigatórios: id
-// Dados opcionais: none
+// Dados obrigatórios: none
+// Dados opcionais: id
 handlers._categorias.get = function(data, callback) {
-  // Conferir os dados obrigatórios
+  // Conferir os dados opcionais
   var id = typeof(data.queryStringObject.id) == 'string' ? data.queryStringObject.id : false;
 
-  // Verificar que o id foi enviado
+  // Verificar se o id foi enviado
   if(id) {
     _data.selectByField('categoria', {'id': id}, function(err, categoriaData) {
       if(!err && categoriaData) {
@@ -533,7 +533,15 @@ handlers._categorias.get = function(data, callback) {
       }
     });
   }else {
-    callback(400, {'Error': 'Faltando dado obrigatório (id)'});
+
+    _data.selectByField('categoria', {}, function(err, categoriaData) {
+      if(!err && categoriaData) {
+        callback(200, categoriaData);
+      }else {
+        callback(500, {'Error': 'Não foi possível consultar a lista de categorias, tente novamente'});
+      }
+    });
+
   }
 };
 
