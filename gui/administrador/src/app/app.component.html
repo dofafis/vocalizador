@@ -1,12 +1,13 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <mat-toolbar class="background-style">
-  <mat-toolbar-row>
-    <!--  <span>HOME</span> -->
-     <span><a class="color-font" href="/">HOME</a></span>
-     <span class="spacer"></span>
-     <a mat-button routerLink="/register">Cadastrar-se</a>
-     <a mat-button routerLink="/login">Entrar</a>
-  </mat-toolbar-row>
-</mat-toolbar>
+    <mat-toolbar-row>
+      <!--  <span>HOME</span> -->
+       <span><a class="color-font" href="/">HOME</a></span>
+       <span class="spacer"></span>
+       <a *ngIf="location.includes('login') || location.includes('register') || location === '/'" mat-button routerLink="/register">Cadastrar-se</a>
+       <a *ngIf="location.includes('login') || location.includes('register') || location === '/'" mat-button routerLink="/login"> Entrar </a>
+       <a *ngIf="!( location.includes('login') || location.includes('register') || location === '/' )" mat-button routerLink="/login"> Sair </a>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
 <router-outlet></router-outlet>
