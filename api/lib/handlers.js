@@ -784,9 +784,10 @@ handlers._cartoes.post = function(data, callback) {
 }
 
 // Cartoes - get
-// Dados obrigatórios: id
-// Dados opcionais: none
+// Dados obrigatórios: none
+// Dados opcionais: id
 handlers._cartoes.get = function(data, callback) {
+
   var id = typeof(data.queryStringObject.id) == 'string' ? data.queryStringObject.id : false;
 
   if(id) {
@@ -833,7 +834,44 @@ handlers._cartoes.get = function(data, callback) {
 
 
   }else {
-    callback(400, {'Error': 'Faltando dado obrigatório (id)'});
+    
+    var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length > 0 ? data.headers.token.trim() : false;
+
+    if(token) {
+
+      _data.selectByField('token', {'id': token}, function(err, tokenData) {
+        if(!err && tokenData) {
+          if(tokenData.length == 1) {
+
+            if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+
+              _data.selectByField('cartao', {}, function(err, cartaoData) {
+                if(!err && cartaoData) {
+
+                    callback(200, cartaoData);
+
+                }else {
+                  callback(500, {'Error': 'Problemas ao procurar pelo cartão, tente novamente'});
+                }
+              });
+
+            }else {
+              callback(400, {'Error': 'Token expirado'});
+            }
+
+          }else {
+            callback(400, {'Error': 'Token inexistente'});
+          }
+        }else {
+          callback(500, {'Error': 'Problemas ao procurar o token, tente novamente'});
+        }
+      });
+
+    }else {
+      callback(400, {'Error': 'Token não enviado'});
+    }
+
+
   }
 };
 
