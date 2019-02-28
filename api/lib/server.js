@@ -198,7 +198,8 @@ server.router = {
    'usuarios' : handlers.usuarios,
    'tokens' : handlers.tokens,
    'categorias' : handlers.categorias,
-   'cartoes': handlers.cartoes
+   'cartoes': handlers.cartoes,
+   'paineis': handlers.paineis
  };
 
 server.arquivos = {

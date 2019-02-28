@@ -1045,6 +1045,201 @@ handlers._cartoes.delete = function(data, callback) {
   }
 }
 
+// Painéis
+handlers.paineis = function(data,callback){
+  var acceptableMethods = ['post','get','put','delete'];
+  if(acceptableMethods.indexOf(data.method) > -1){
+    handlers._paineis[data.method](data,callback);
+  } else {
+    callback(405);
+  }
+};
+
+
+handlers._paineis = {};
+
+// Paineis - post
+// Dados obrigatórios: id_usuario, nome, descricao
+// Dados opcionais: none
+handlers._paineis.post = function(data, callback) {
+  // Conferir dados obrigatórios
+  var id_usuario = typeof(data.payload.id_usuario) == 'number' ? data.payload.id_usuario : false;
+  var nome = typeof(data.payload.nome) == 'string' && data.payload.nome.length > 0 ? data.payload.nome : false;
+  var descricao = typeof(data.payload.descricao) == 'string' && data.payload.descricao.length > 0 ? data.payload.descricao : false;
+
+  // Verificar dados obrigatórios
+  if(id_usuario && nome && descricao) {
+
+    var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+    // Conferir token
+    if(token) {
+
+      _data.selectByField('token', {'id': token}, function(err, tokenData) {
+
+        if(!err && tokenData) {
+          if(tokenData.length == 1) {
+            if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+
+              // Conferir se o dono do token está criando o painel dele
+              if(id_usuario === tokenData[0].id_usuario) {
+
+                // Criar o json para dar insert o painel no banco
+                const painelData = {
+                  'id_usuario': id_usuario,
+                  'nome': nome,
+                  'descricao': descricao
+                };
+
+                // Insert no banco
+                _data.insert('painel', painelData, function(err) {
+                  if(!err) {
+                    callback(200);
+                  }else {
+                    callback(500, {'Error': 'Não foi possível inserir o painel no banco, tente novamente'});
+                  }
+                });
+
+              }else {
+                callback(400, {'Error': 'O dono do token não é dono do painel a ser criado'});
+              }
+
+            }else {
+              callback(400, {'Error': 'Token expirado'});
+            }
+          }else {
+            callback(400, {'Error': 'Token inexistente'});
+          }
+        }else {
+          callback(500, {'Error': 'Não foi possível procurar o token, tente novamente'});
+        }
+
+      });
+
+    }else {
+      callback(400, {'Error': 'Token não enviado'});
+    }
+  }else {
+    callback(400, {'Error': 'Faltando dado(s) obrigatório(s) (id_usuario, nome, descricao)'});
+  }
+
+}
+
+// Paineis - get
+// Dados obrigatórios: id_usuario
+// Dados opcionais: id
+handlers._paineis.get = function(data, callback) {
+  // Conferir dados obrigatórios
+  var id_usuario = typeof(data.queryStringObject.id_usuario) === 'string' && data.queryStringObject.id_usuario.trim().length > 0 ? data.queryStringObject.id_usuario : false;
+
+  // Conferir dados opcionais
+  var id = typeof(data.queryStringObject.id) === 'string' && data.queryStringObject.id.trim().length > 0 ? data.queryStringObject.id.trim() : false;
+
+  if(id_usuario) {
+    // Se tem id, pega o painel do usuário com o id dado
+    if(id) {
+      var token = typeof(data.headers.token) === 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+
+      if(token) {
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+          if(!err && tokenData) {
+            if(tokenData.length == 1) {
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+                if(tokenData[0].id_usuario == id_usuario) {
+                  // Já que é autorizado, pegar o painel expecificado
+                  _data.selectByField('painel', {'id': id, 'id_usuario': id_usuario}, function(err, painelData) {
+                    if(!err && painelData) {
+                      if(painelData.length == 1) {
+                        callback(200, painelData[0]);
+                      }else {
+                        callback(400, {'Error': 'Painel inexistente'});
+                      }
+                    }else {
+                      callback(500, {'Error': 'Não foi possível procurar o painel, tente novamente'});
+                    }
+                  });
+                }else {
+                  callback(400, {'Error': 'O dono do token não é dono do painel'});
+                }
+              }else {
+                callback(400, {'Error': 'Token expirado'});
+              }
+            }else {
+              callback(400, {'Error': 'Token inexistente'});
+            }
+          }else {
+            callback(500, {'Error': 'Não foi possível procurar o token, tente novamente'});
+          }
+        });
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
+
+    }else {
+      // Já que não tem id, pega todos paineis do usuário
+      var token = typeof(data.headers.token) === 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+
+      if(token) {
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+          if(!err && tokenData) {
+            if(tokenData.length == 1) {
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+                if(tokenData[0].id_usuario == id_usuario) {
+                  // Já que é autorizado, pegar o painel expecificado
+                  _data.selectByField('painel', {'id_usuario': id_usuario}, function(err, painelData) {
+                    if(!err && painelData) {
+
+                      callback(200, painelData);
+
+                    }else {
+                      callback(500, {'Error': 'Não foi possível procurar os painéis, tente novamente'});
+                    }
+                  });
+                }else {
+                  callback(400, {'Error': 'O dono do token não é dono do painel'});
+                }
+              }else {
+                callback(400, {'Error': 'Token expirado'});
+              }
+            }else {
+              callback(400, {'Error': 'Token inexistente'});
+            }
+          }else {
+            callback(500, {'Error': 'Não foi possível procurar o token, tente novamente'});
+          }
+        });
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
+    }
+  }else {
+    callback(400, {'Error': 'Faltando dado obrigatório (id_usuario)'});
+  }
+}
+
+// Paineis - put
+// Dados obrigatórios: id
+// Dados opcionais: nome, descricao
+handlers._paineis.put = function(data, callback) {
+  // Conferir dados obrigatórios
+
+
+  // Conferir dados opcionais
+
+
+}
+
+// Paineis - delete
+// Dados obrigatórios: id_usuario
+// Dados opcionais: id
+handlers._paineis.delete = function(data, callback) {
+  // Conferir dados obrigatórios
+
+
+  // Conferir dados opcionais
+
+
+}
+
 // Container de todas os handlers de arquivos
 handlers.arquivos = {};
 
