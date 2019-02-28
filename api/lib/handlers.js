@@ -1143,68 +1143,140 @@ handlers._paineis = {};
 
 // Paineis - post
 // Dados obrigatórios: id_usuario, nome, descricao
-// Dados opcionais: none
+// Dados opcionais: addcartao => (id_cartao, id_painel)
 handlers._paineis.post = function(data, callback) {
   // Conferir dados obrigatórios
   var id_usuario = typeof(data.payload.id_usuario) == 'number' ? data.payload.id_usuario : false;
   var nome = typeof(data.payload.nome) == 'string' && data.payload.nome.length > 0 ? data.payload.nome : false;
   var descricao = typeof(data.payload.descricao) == 'string' && data.payload.descricao.length > 0 ? data.payload.descricao : false;
 
-  // Verificar dados obrigatórios
-  if(id_usuario && nome && descricao) {
+  // Conferir dados opcionais
+  var addcartao = typeof(data.queryStringObject.addcartao) === 'string' && data.queryStringObject.addcartao.trim().length > 0 && data.queryStringObject.addcartao.trim() === 'true' ? true : false;
+  var id_cartao = typeof(data.payload.id_cartao) === 'number' ? data.payload.id_cartao : false;
+  var id_painel = typeof(data.payload.id_painel) === 'number' ? data.payload.id_painel : false;
 
-    var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
-    // Conferir token
-    if(token) {
 
-      _data.selectByField('token', {'id': token}, function(err, tokenData) {
+  if(addcartao) {
+    // Verificar dados obrigatórios
+    if(id_cartao && id_painel) {
 
-        if(!err && tokenData) {
-          if(tokenData.length == 1) {
-            if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+      // Verificar token
+      var token = typeof(data.headers.token) === 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
 
-              // Conferir se o dono do token está criando o painel dele
-              if(id_usuario === tokenData[0].id_usuario) {
-
-                // Criar o json para dar insert o painel no banco
-                const painelData = {
-                  'id_usuario': id_usuario,
-                  'nome': nome,
-                  'descricao': descricao
-                };
-
-                // Insert no banco
-                _data.insert('painel', painelData, function(err) {
-                  if(!err) {
-                    callback(200);
+      if(token) {
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+          if(!err && tokenData) {
+            if(tokenData.length == 1) {
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+                // Confere se o dono do token é dono do painel
+                _data.selectByField('painel', {'id': id_painel}, function(err, painelData) {
+                  if(!err && painelData) {
+                    if(painelData.length == 1) {
+                      if(painelData[0].id_usuario === tokenData[0].id_usuario) {
+                        // Já que o painel existe e é do mesmo usuário dono do token, confere se o cartão especificado existe
+                        _data.selectByField('cartao', {'id': id_cartao}, function(err, cartaoData) {
+                          if(!err && cartaoData) {
+                            if(cartaoData.length == 1) {
+                              //Já que o cartão e o painel existem, e o usuário é autorizado, então insere o cartão no painel
+                              _data.insert('rel_painel_cartao', {'id_cartao': id_cartao, 'id_painel': id_painel}, function(err) {
+                                if(!err) {
+                                  callback(200);
+                                }else {
+                                  callback(500, {'Error': 'Não foi possível adicionar o cartão ao painel'});
+                                }
+                              });
+                            }else {
+                              callback(400, {'Error': 'Cartão inexistente'});
+                            }
+                          }else {
+                            callback(500, {'Error': 'Não foi possível procurar o cartão especificado'});
+                          }
+                        });
+                      } else {
+                        callback(400, {'Error': 'Dono do painel não é o dono do token, portanto, não autorizado'});
+                      }
+                    }else {
+                      callback(400, {'Error': 'Painel inexistente'});
+                    }
                   }else {
-                    callback(500, {'Error': 'Não foi possível inserir o painel no banco, tente novamente'});
+                    callback(500, {'Error': 'Não foi possível procurar o painel especificado, tente novamente'});
                   }
                 });
-
               }else {
-                callback(400, {'Error': 'O dono do token não é dono do painel a ser criado'});
+                callback(400, {'Error': 'Token expirado'});
               }
-
             }else {
-              callback(400, {'Error': 'Token expirado'});
+              callback(400, {'Error': 'Token inexistente'});
             }
           }else {
-            callback(400, {'Error': 'Token inexistente'});
+            callback(500, {'Error': 'Não foi possível procurar pelo token'});
           }
-        }else {
-          callback(500, {'Error': 'Não foi possível procurar o token, tente novamente'});
-        }
-
-      });
+        });
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
 
     }else {
-      callback(400, {'Error': 'Token não enviado'});
+      callback(400, {'Error': 'Para adicionar um cartão é necessário enviar o id_cartao e id_painel, nenhum encontrado'});
     }
   }else {
-    callback(400, {'Error': 'Faltando dado(s) obrigatório(s) (id_usuario, nome, descricao)'});
-  }
 
+    // Verificar dados obrigatórios
+    if(id_usuario && nome && descricao) {
+      
+      var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+      // Conferir token
+      if(token) {
+        
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+          
+          if(!err && tokenData) {
+            if(tokenData.length == 1) {
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+
+                // Conferir se o dono do token está criando o painel dele
+                if(id_usuario === tokenData[0].id_usuario) {
+                  
+                  // Criar o json para dar insert o painel no banco
+                  const painelData = {
+                    'id_usuario': id_usuario,
+                    'nome': nome,
+                    'descricao': descricao
+                  };
+                  
+                  // Insert no banco
+                  _data.insert('painel', painelData, function(err) {
+                    if(!err) {
+                      callback(200);
+                    }else {
+                      callback(500, {'Error': 'Não foi possível inserir o painel no banco, tente novamente'});
+                    }
+                  });
+                  
+                }else {
+                  callback(400, {'Error': 'O dono do token não é dono do painel a ser criado'});
+                }
+                
+              }else {
+                callback(400, {'Error': 'Token expirado'});
+              }
+            }else {
+              callback(400, {'Error': 'Token inexistente'});
+            }
+          }else {
+            callback(500, {'Error': 'Não foi possível procurar o token, tente novamente'});
+          }
+          
+        });
+        
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
+    }else {
+      callback(400, {'Error': 'Faltando dado(s) obrigatório(s) (id_usuario, nome, descricao)'});
+    }
+    
+  }
 }
 
 // Paineis - get
