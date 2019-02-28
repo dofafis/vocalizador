@@ -1291,12 +1291,91 @@ handlers._paineis.put = function(data, callback) {
 // Dados obrigatórios: id_usuario
 // Dados opcionais: id
 handlers._paineis.delete = function(data, callback) {
+  // Verificar dados obrigatórios
+  var id_usuario = typeof(data.queryStringObject.id_usuario) == 'string' && data.queryStringObject.id_usuario.trim().length > 0 ? data.queryStringObject.id_usuario.trim() : false;
+
+  // Verificar dados opcionais
+  var id = typeof(data.queryStringObject.id) === 'string' && data.queryStringObject.id.trim().length > 0 ? data.queryStringObject.id.trim() : false;
+
   // Conferir dados obrigatórios
+  if(id_usuario) {
+    // Conferir dados opcionais
+    if(id) {
+      //Conferir o token
+      var token = typeof(data.headers.token) === 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+
+      if(token) {
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+          if(!err && tokenData) {
+            if(tokenData.length == 1) {
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+                if(tokenData[0].id_usuario == id_usuario) {
+                  //deletar painel especificado
+                  _data.delete('painel', {'id': id}, function(err) {
+                    if(!err) {
+                      callback(200);
+                    }else {
+                      callback(500, {'Error': 'Não foi possível deletar o painel especificado, tente novamente'});
+                    }
+                  });
+                }else {
+                  callback(400, {'Error': 'Usuário dono do token não é dono do painel, portanto não está autorizado a deletá-lo'});
+                }
+              }else {
+                callback(400, {'Error': 'Token expirado'});
+              }
+            }else {
+              callback(400, {'Error': 'Token inexistente'});
+            }
+          }else {
+            callback(400, {'Error': 'Não foi possível procurar pelo token'});
+          }
+        });
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
 
 
-  // Conferir dados opcionais
 
+    }else {
+      //Conferir o token
+      var token = typeof(data.headers.token) === 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
 
+      if(token) {
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+          if(!err && tokenData) {
+            if(tokenData.length == 1) {
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+                if(tokenData[0].id_usuario == id_usuario) {
+                  // deletar todos paineis do usuário especificado
+                  _data.delete('painel', {'id_usuario': id_usuario}, function(err) {
+                    if(!err) {
+                      callback(200);
+                    }else {
+                      callback(500, {'Error': 'Não foi possível deletar o painel especificado, tente novamente'});
+                    }
+                  });
+                }else {
+                  callback(400, {'Error': 'Usuário dono do token não é dono do painel, portanto não está autorizado a deletá-lo'});
+                }
+              }else {
+                callback(400, {'Error': 'Token expirado'});
+              }
+            }else {
+              callback(400, {'Error': 'Token inexistente'});
+            }
+          }else {
+            callback(400, {'Error': 'Não foi possível procurar pelo token'});
+          }
+        });
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
+
+    }
+  }else {
+    callback(400, {'Error': 'Faltando dados obrigatórios (id_usuario)'});
+  }
 }
 
 // Container de todas os handlers de arquivos
