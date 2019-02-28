@@ -1,3 +1,20 @@
-<p>
+<p *ngFor="let categoria of categorias">
+  {{ categoria.nome }}
   dashboard works!
 </p>
+
+<mat-grid-list [cols]="breakpoint" rowHeight="2:1.5" (window:resize)="onResize($event)">
+    <mat-grid-tile *ngFor="let num of nums" >
+      <img src="assets/1.png" />
+      <!--<mat-card class="example-card">
+        <mat-card-content>
+
+        </mat-card-content>
+        <mat-card-actions>
+
+        </mat-card-actions>
+      </mat-card>-->
+    </mat-grid-tile>
+</mat-grid-list>
+
+

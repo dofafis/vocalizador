@@ -1,11 +1,12 @@
-import { NgModule } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
-import { CommonModule } from "@angular/common";
+import { NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { RegistrationComponent } from './registration-component/registration-component.component';
 import { SigninComponent } from './signin/signin.component';
 import { MyMaterialModule } from '../material.module';
 import { HttpClientModule } from '@angular/common/http';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 @NgModule({
     declarations: [ RegistrationComponent, SigninComponent, DashboardComponent ],
@@ -13,7 +14,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
         CommonModule,
         ReactiveFormsModule,
         MyMaterialModule,
-        HttpClientModule
+        HttpClientModule,
+        MatGridListModule
     ]
 })
 export class HomeModule {}

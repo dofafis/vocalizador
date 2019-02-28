@@ -87,7 +87,7 @@ server.unifiedServer = function(req,res){
 
 
             // Return the response
-            res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+            res.setHeader('Content-Type', 'image/png');
             res.writeHead(statusCode);
 
             var readStream = fs.createReadStream(filePath);

@@ -1689,6 +1689,7 @@ handlers.arquivos._cartoes.get = function(data, callback) {
   if(id) {
 
     var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token : false;
+
     if(token) {
 
       _data.selectByField('token', {'id': token}, function(err, tokenData) {

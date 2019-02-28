@@ -10,3 +10,13 @@
 .color-font {
   color: white;
 }
+
+mat-grid-tile {
+  background: lightblue;
+}
+
+.example-card {
+  margin: auto;
+  text-align: center;
+  background-color: lightblue;
+}

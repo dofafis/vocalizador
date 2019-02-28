@@ -2,7 +2,10 @@
 <mat-toolbar class="background-style">
     <mat-toolbar-row>
       <!--  <span>HOME</span> -->
-       <span><a class="color-font" href="/">HOME</a></span>
+       <span>
+          <a *ngIf="!location.includes('dashboard')" class="color-font" href="/">HOME</a>
+          <a *ngIf="location.includes('dashboard')" class="color-font" [href]="location">HOME</a>
+      </span>
        <span class="spacer"></span>
        <a *ngIf="location.includes('login') || location.includes('register') || location === '/'" mat-button routerLink="/register">Cadastrar-se</a>
        <a *ngIf="location.includes('login') || location.includes('register') || location === '/'" mat-button routerLink="/login"> Entrar </a>
