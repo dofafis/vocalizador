@@ -1218,13 +1218,72 @@ handlers._paineis.get = function(data, callback) {
 
 // Paineis - put
 // Dados obrigatórios: id
-// Dados opcionais: nome, descricao
+// Dados opcionais: nome, descricao (pelo menos um deve ser enviado)
 handlers._paineis.put = function(data, callback) {
   // Conferir dados obrigatórios
-
+  var id = typeof(data.payload.id) === 'number' ? data.payload.id : false;
 
   // Conferir dados opcionais
+  var nome = typeof(data.payload.nome) === 'string' && data.payload.nome.length > 0 ? data.payload.nome : false;
+  var descricao = typeof(data.payload.descricao) === 'string' && data.payload.descricao.length > 0 ? data.payload.descricao : false;
 
+  //Verificar dados obrigatórios
+  if(id) {
+    // Verificar dados opcionais
+    if(nome || descricao) {
+      // Verificar token
+      var token = typeof(data.headers.token) === 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
+      if(token) {
+        _data.selectByField('token', {'id': token}, function(err, tokenData) {
+          if(!err && tokenData) {
+            if(tokenData.length == 1) {
+              if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now()))) {
+                // Procurar por painel
+                _data.selectByField('painel', {'id': id}, function(err, painelData) {
+                  if(!err && painelData) {
+                    if(painelData.length == 1) {
+                      if(nome) {
+                        painelData[0].nome = nome;
+                      }
+                      if(descricao) {
+                        painelData[0].descricao = descricao;
+                      }
+
+                      _data.update('painel', {'id': id}, painelData[0], function(err) {
+                        if(!err) {
+                          callback(200);
+                        }else {
+                          console.log(err);
+                          callback(500, {'Error': 'Não foi possível alterar o painel, tente novamente'});
+                        }
+                      });
+                    }else {
+                      callback(400, {'Error': 'Painel especificado não existe'});
+                    }
+                  }else {
+                    callback(500, {'Error': 'Não foi possível procurar o painel especificado, tente novamente'});
+                  }
+                });
+              }else {
+                callback(400, {'Error': 'Token expirado'});
+              }
+            }else {
+              callback(400, {'Error': 'Token inexistente'});
+            }
+          }else {
+            callback(500, {'Error': 'Não foi possível procurar o token, tente novamente'});
+          }
+        });
+      }else {
+        callback(400, {'Error': 'Token não enviado'});
+      }
+
+    }else {
+      callback(400, {'Error': 'Pelo menos um dos dados opcionais deve ser enviado (nome, descricao), nenhum encontrado'});
+    }
+  }else {
+    callback(400, {'Error': 'Faltando dados obrigatórios (id)'});
+  }
 
 }
 
