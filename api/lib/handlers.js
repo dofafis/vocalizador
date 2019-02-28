@@ -785,10 +785,12 @@ handlers._cartoes.post = function(data, callback) {
 
 // Cartoes - get
 // Dados obrigatórios: none
-// Dados opcionais: id
+// Dados opcionais: id, id_categoria, id_cartao
 handlers._cartoes.get = function(data, callback) {
 
-  var id = typeof(data.queryStringObject.id) == 'string' ? data.queryStringObject.id : false;
+  var id = typeof(data.queryStringObject.id) == 'string' && data.queryStringObject.id.trim().length > 0 ? data.queryStringObject.id.trim() : false;
+  var id_categoria = typeof(data.queryStringObject.id_categoria) == 'string' && data.queryStringObject.id_categoria.trim().length > 0 ? data.queryStringObject.id_categoria.trim() : false;
+  var id_painel = typeof(data.queryStringObject.id_painel) == 'string' && data.queryStringObject.id_painel.trim().length > 0 ? data.queryStringObject.id_painel.trim() : false;
 
   if(id) {
 
@@ -833,8 +835,89 @@ handlers._cartoes.get = function(data, callback) {
     }
 
 
+  } else if(id_categoria) {
+
+    var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length > 0 ? data.headers.token.trim() : false;
+
+    if(token) {
+
+      _data.selectByField('token', {'id': token}, function(err, tokenData) {
+        if(!err && tokenData) {
+          if(tokenData.length == 1) {
+
+            if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+
+              //retornar todos os cartões da categoria especificada
+              _data.selectByField('cartao', {'id_categoria': id_categoria}, function(err, cartaoData) {
+                if(!err && cartaoData) {
+
+                    callback(200, cartaoData);
+
+                }else {
+                  callback(500, {'Error': 'Problemas ao procurar pelo cartão, tente novamente'});
+                }
+              });
+
+            }else {
+              callback(400, {'Error': 'Token expirado'});
+            }
+
+          }else {
+            callback(400, {'Error': 'Token inexistente'});
+          }
+        }else {
+          callback(500, {'Error': 'Problemas ao procurar o token, tente novamente'});
+        }
+      });
+
+    }else {
+      callback(400, {'Error': 'Token não enviado'});
+    }
+
+  } else if(id_painel) {
+
+    var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length > 0 ? data.headers.token.trim() : false;
+
+    if(token) {
+
+      _data.selectByField('token', {'id': token}, function(err, tokenData) {
+        if(!err && tokenData) {
+          if(tokenData.length == 1) {
+
+            if(tokenData[0].validade >= helpers.jsDateToMysqlDate(new Date(Date.now())) ) {
+
+              // Verificar se o dono do token é dono do painel
+              _data.selectByField('painel', {'id': id_painel}, function(err, painelData) {
+
+              });
+
+              //retornar todos os cartões da categoria especificada
+              _data.selectByField('rel_painel_cartao', {'id_painel': id_painel}, function(err, cartaoData) {
+                if(!err && cartaoData) {
+                    callback(200, cartaoData);
+                }else {
+                  callback(500, {'Error': 'Problemas ao procurar pelo cartão, tente novamente'});
+                }
+              });
+
+            }else {
+              callback(400, {'Error': 'Token expirado'});
+            }
+
+          }else {
+            callback(400, {'Error': 'Token inexistente'});
+          }
+        }else {
+          callback(500, {'Error': 'Problemas ao procurar o token, tente novamente'});
+        }
+      });
+
+    }else {
+      callback(400, {'Error': 'Token não enviado'});
+    }
+
   }else {
-    
+
     var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length > 0 ? data.headers.token.trim() : false;
 
     if(token) {
