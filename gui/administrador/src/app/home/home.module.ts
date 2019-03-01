@@ -7,6 +7,8 @@ import { MyMaterialModule } from '../material.module';
 import { HttpClientModule } from '@angular/common/http';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatCardModule } from '@angular/material';
+import { DarkenOnHoverModule } from '../darken-on-hover/darken-on-hover.module';
 
 @NgModule({
     declarations: [ RegistrationComponent, SigninComponent, DashboardComponent ],
@@ -15,7 +17,9 @@ import { MatGridListModule } from '@angular/material/grid-list';
         ReactiveFormsModule,
         MyMaterialModule,
         HttpClientModule,
-        MatGridListModule
+        MatGridListModule,
+        MatCardModule,
+        DarkenOnHoverModule
     ]
 })
 export class HomeModule {}

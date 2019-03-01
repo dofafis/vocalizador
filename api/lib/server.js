@@ -150,7 +150,7 @@ server.unifiedServer = function(req,res){
          if(method === 'options') {
           res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
           res.setHeader('Access-Control-Allow-Credentials', true);
-          res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept");
+          res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token");
           res.setHeader('Content-Type', 'application/json; charset=UTF-8');
           res.writeHead(204);
           res.end();
@@ -172,7 +172,7 @@ server.unifiedServer = function(req,res){
              // Return the response
              res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
              res.setHeader('Access-Control-Allow-Credentials', true);
-             res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept");
+             res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token");
              res.setHeader('Content-Type', 'application/json; charset=UTF-8');
              res.writeHead(statusCode);
              
