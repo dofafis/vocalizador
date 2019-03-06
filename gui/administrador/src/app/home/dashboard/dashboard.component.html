@@ -1,8 +1,26 @@
-<mat-grid-list *ngIf="mostrarCartoes == 0" [cols]="breakpoint" rowHeight="2:1.5" (window:resize)="onResize($event)">
-  <mat-grid-tile *ngFor="let categoria of categorias" apDarkenOnHover>
+<mat-toolbar class="back-style" (click)="voltarParaCategorias()" *ngIf="mostrarCartoes != 0 || criandoCategoria" apDarkenOnHover ng-click>
+  <mat-toolbar-row>
+    <!--  <span>HOME</span> -->
+    <span>
+      <mat-icon>keyboard_backspace</mat-icon>
+      <a class="color-font"> Voltar</a>
+    </span>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+
+<mat-grid-list *ngIf="mostrarCartoes == 0 && !criandoCategoria" [cols]="breakpoint" rowHeight="2:1.5" (window:resize)="onResize($event)">
+  <br/>
+  <mat-grid-tile apDarkenOnHover ng-click>
+    <mat-card (click)="criarCategoria()" class="example-card">
+      <mat-card-title> Adicionar </mat-card-title>
+      <img mat-card-image src="./assets/add-sign.png" />      
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile *ngFor="let categoria of categorias" apDarkenOnHover ng-click>
     <mat-card (click)="selecionarCategoria(categoria.id)" class="example-card">
       <mat-card-title> {{ categoria.nome }} </mat-card-title>
-      <img mat-card-image src="./assets/{{categoria.id}}.png" />
+      <img mat-card-image src="./assets/{{ categoria.id }}.png" />
       <mat-card-actions>
       </mat-card-actions>
     </mat-card>
@@ -10,14 +28,13 @@
 </mat-grid-list>
 
 <br/>
-<br/>
-<br/>
-<mat-grid-list *ngIf="mostrarCartoes != 0" [cols]="breakpoint" rowHeight="1.5:1.5" (window:resize)="onResize($event)">
+
+<mat-grid-list *ngIf="mostrarCartoes != 0 && !criandoCategoria" [cols]="breakpoint" rowHeight="1.5:1.5" (window:resize)="onResize($event)">
   <div *ngFor="let cartao of cartoes">
-    <mat-grid-tile *ngIf="cartao.id_categoria == mostrarCartoes" >
+    <mat-grid-tile *ngIf="cartao.id_categoria == mostrarCartoes" apDarkenOnHover ng-click>
       <mat-card class="example-card">
         <mat-card-title> {{ cartao.nome }} </mat-card-title>
-        <!--<img mat-card-image src="" />-->
+        <img mat-card-image [src]="cartao.imagem" />
         <mat-card-actions>
 
         </mat-card-actions>
@@ -25,5 +42,4 @@
     </mat-grid-tile>
   </div>
 </mat-grid-list>
-
 

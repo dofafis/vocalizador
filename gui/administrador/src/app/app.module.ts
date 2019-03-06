@@ -9,6 +9,7 @@ import { HomeModule } from './home/home.module';
 import { RegistrationComponent } from './home/registration-component/registration-component.component';
 import { SigninComponent } from './home/signin/signin.component';
 import { DashboardComponent } from './home/dashboard/dashboard.component';
+import { MatIconModule } from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { DashboardComponent } from './home/dashboard/dashboard.component';
     BrowserAnimationsModule,
     MyMaterialModule,
     HomeModule,
+    MatIconModule,
     RouterModule.forRoot([
       { path: '', redirectTo: '/', pathMatch: 'full' },
       { path: 'register', component: RegistrationComponent },

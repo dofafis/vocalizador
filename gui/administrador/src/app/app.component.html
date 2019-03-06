@@ -3,8 +3,8 @@
     <mat-toolbar-row>
       <!--  <span>HOME</span> -->
        <span>
-          <a *ngIf="!location.includes('dashboard')" class="color-font" href="/">HOME</a>
-          <a *ngIf="location.includes('dashboard')" class="color-font" [href]="location">HOME</a>
+          <a *ngIf="!location.includes('dashboard')" class="color-font" href="/"><mat-icon>home</mat-icon></a>
+          <a *ngIf="location.includes('dashboard')" class="color-font" [href]="location"><mat-icon>home</mat-icon></a>
       </span>
        <span class="spacer"></span>
        <a *ngIf="location.includes('login') || location.includes('register') || location === '/'" mat-button routerLink="/register">Cadastrar-se</a>

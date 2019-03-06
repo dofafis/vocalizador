@@ -2,6 +2,15 @@
   flex: 1 1 auto;
 }
 
+[ng-click] {
+  cursor: pointer;
+}
+
+.back-style {
+  background-color: #338eab;
+  color: white
+}
+
 .background-style {
   background-color: #33819a;
   color: white

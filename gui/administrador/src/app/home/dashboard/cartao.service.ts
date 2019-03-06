@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Token } from '../token';
+import { Observable } from 'rxjs';
 
 const API = 'http://localhost:3000';
 
@@ -19,6 +20,18 @@ export class CartaoService {
     };
 
     return this.http.get(API + '/cartoes', httpOptions);
+  }
+
+  getImagemCartao(token: Token, id_cartao: string) : Observable<Blob> {
+    const httpOptions = {
+      responseType: 'blob' as 'json',
+      headers: new HttpHeaders({
+        'Content-Type': 'multipart/form-data',
+        'token': token.id,
+      })
+    };
+
+    return this.http.get<Blob>(API + '/arquivos/cartoes?id=' + id_cartao, httpOptions);
   }
 }
 
