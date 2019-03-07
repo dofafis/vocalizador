@@ -16,11 +16,11 @@ var lib = {};
 lib.insert = function(table, data, callback) {
   var consulta = knex(table).insert(data);
   consulta
-  .then(function(){
-    callback(false);
+  .then(function(result){
+    callback(result, false);
   })
   .catch(function(err){
-    callback(err);
+    callback(false, err);
   });
 };
 

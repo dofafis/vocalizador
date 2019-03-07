@@ -280,7 +280,8 @@ server.router = {
  };
 
 server.arquivos = {
-  'cartoes': handlers.arquivos.cartoes
+  'cartoes': handlers.arquivos.cartoes,
+  'categorias': handlers.arquivos.categorias
 };
 
  // Init script

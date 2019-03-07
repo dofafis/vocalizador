@@ -12,7 +12,7 @@ import { DarkenOnHoverModule } from '../darken-on-hover/darken-on-hover.module';
 import { FileSelectDirective } from 'ng2-file-upload';
 
 @NgModule({
-    declarations: [ RegistrationComponent, SigninComponent, DashboardComponent ],
+    declarations: [ RegistrationComponent, SigninComponent, DashboardComponent, FileSelectDirective ],
     imports: [
         CommonModule,
         ReactiveFormsModule,
@@ -22,7 +22,6 @@ import { FileSelectDirective } from 'ng2-file-upload';
         MatCardModule,
         MatIconModule,
         DarkenOnHoverModule,
-        FileSelectDirective
     ]
 })
 export class HomeModule {}

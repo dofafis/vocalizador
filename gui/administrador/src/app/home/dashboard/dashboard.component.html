@@ -14,13 +14,13 @@
   <mat-grid-tile apDarkenOnHover ng-click>
     <mat-card (click)="criarCategoria()" class="example-card">
       <mat-card-title> Adicionar </mat-card-title>
-      <img mat-card-image src="./assets/add-sign.png" />      
+      <img mat-card-image src="./assets/add-sign.png" />
     </mat-card>
   </mat-grid-tile>
   <mat-grid-tile *ngFor="let categoria of categorias" apDarkenOnHover ng-click>
     <mat-card (click)="selecionarCategoria(categoria.id)" class="example-card">
       <mat-card-title> {{ categoria.nome }} </mat-card-title>
-      <img mat-card-image src="./assets/{{ categoria.id }}.png" />
+      <img mat-card-image *ngIf="categoria" [src]="categoria?.imagem || ''" />
       <mat-card-actions>
       </mat-card-actions>
     </mat-card>
@@ -34,7 +34,7 @@
     <mat-grid-tile *ngIf="cartao.id_categoria == mostrarCartoes" apDarkenOnHover ng-click>
       <mat-card class="example-card">
         <mat-card-title> {{ cartao.nome }} </mat-card-title>
-        <img mat-card-image [src]="cartao.imagem" />
+        <img mat-card-image *ngIf="cartao" [src]="cartao?.imagem || ''" />
         <mat-card-actions>
 
         </mat-card-actions>
@@ -63,10 +63,19 @@
           <mat-error *ngIf="hasError('descricao', 'required')">Descrição é um campo obrigatório</mat-error>
         </mat-form-field>
         <br/>
+        <br/>
       </form>
+
+      <input style="display: none" name="imagemCategoria"
+        type="file" (change)="onFileChanged($event)" #fileInput >
+      <button mat-flat-button style="float:left;margin-left: 5%;" (click)="fileInput.click()">Selecione uma imagem</button>
+      <a *ngIf="arquivoSelecionado">{{arquivoSelecionado.name}}</a>
+
     </mat-card-content>
     <mat-card-actions>
+      <br/>
+      <br/>
+      <br/>
       <button mat-raised-button (click)="cadastrarCategoria()" class="background-color" >CADASTRAR</button>
     </mat-card-actions>
   </mat-card>
-  

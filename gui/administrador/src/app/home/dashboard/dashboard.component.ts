@@ -19,12 +19,13 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   categorias: Categoria[];
   cartoes: Cartao[];
   mostrarCartoes: number;
-  
+
   criandoCategoria: boolean;
   criarCategoriaForm: FormGroup;
   erroCriarCategoria = '';
 
   breakpoint: any;
+  arquivoSelecionado: any;
 
   constructor(private route: ActivatedRoute,
             private router: Router,
@@ -39,22 +40,26 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit() {
     this.elementRef.nativeElement.ownerDocument.body.style.backgroundColor = 'white';
   }
-  
+
   ngOnDestroy() {
     localStorage.setItem('mostrarCartoes', '0');
     localStorage.setItem('criandoCategoria', 'false');
+    this.erroCriarCategoria = '';
   }
 
-  ngOnInit() {    
+  ngOnInit() {
 
-    this.criandoCategoria = localStorage.getItem('criandoCategoria')==='true' ? true : false;
+    this.erroCriarCategoria = '';
 
-    this.mostrarCartoes = parseInt(localStorage.getItem('mostrarCartoes'));
+    this.criandoCategoria = localStorage.getItem('criandoCategoria') === 'true' ? true : false;
+
+    this.mostrarCartoes = localStorage.getItem('criandoCategoria') ?  parseInt(localStorage.getItem('mostrarCartoes'), 10) : 0;
     this.route.params.subscribe(params => {
       this.currentToken = params as Token;
       const currentDate = new Date(Date.now()).toISOString().slice(0, 19).replace('T', ' ');
       if (typeof(this.currentToken.id) === 'undefined' || ( this.currentToken.validade < currentDate ) ) {
         this.router.navigate(['login']);
+      } else {
       }
     });
 
@@ -62,25 +67,13 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe(
         (response) => {
           this.categorias = response as Categoria[];
-          console.log(this.categorias);
-        },
-        (response) => {
 
-        }
-      );
-
-    this.cartaoService.getTodosCartoes(this.currentToken)
-      .subscribe(
-        (response) => {
-          this.cartoes = response as Cartao[];
-          console.log(this.cartoes);
-          
-          // Já que conseguiu pegar os cartões, pegar as imagens por id de cada cartão
-          for (let i = 0; i<this.cartoes.length; i++ ) {
-            this.cartaoService.getImagemCartao(this.currentToken, this.cartoes[i].id.toString())
+          // Já que conseguiu pegar as categorias, pegar as imagens por id de cada uma
+          for (let i = 0; i < this.categorias.length; i++) {
+            this.categoriaService.getImagemCategoria(this.currentToken, this.categorias[i].id.toString())
               .subscribe(imagem => {
-                var imagemURL = URL.createObjectURL(imagem);
-                this.cartoes[i].imagem = this.sanitizer.bypassSecurityTrustUrl(imagemURL);
+                const imagemURL = URL.createObjectURL(imagem);
+                this.categorias[i].imagem = this.sanitizer.bypassSecurityTrustUrl(imagemURL);
               },
               error => {
                 console.log(error);
@@ -88,8 +81,35 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
               });
           }
         },
+        (error) => {
+          console.log(error);
+          // @TODO Tratar erros e mensagens de erro
+        }
+      );
+
+    this.cartaoService.getTodosCartoes(this.currentToken)
+      .subscribe(
         (response) => {
-          console.log(response); 
+          this.cartoes = response as Cartao[];
+
+          // Já que conseguiu pegar os cartões, pegar as imagens por id de cada cartão
+          for (let i = 0; i < this.cartoes.length; i++ ) {
+            this.cartaoService.getImagemCartao(this.currentToken, this.cartoes[i].id.toString())
+              .subscribe(imagem => {
+                const imagemURL = URL.createObjectURL(imagem);
+                this.cartoes[i].imagem = this.sanitizer.bypassSecurityTrustUrl(imagemURL);
+              },
+              error => {
+                console.log(error);
+                console.log('Problema em pegar imagens dos cartões');
+
+                // @TODO tratar erros e mensagens de erro
+              });
+          }
+        },
+        (error) => {
+          console.log(error);
+          console.log("Problema ao pegar cartoes");
           // @TODO Tratar erros e mensagens de erro
         }
       );
@@ -100,7 +120,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       nome: ['', Validators.required],
       descricao: ['', Validators.required]
     });
-    console.log(this.criandoCategoria);
   }
 
   onResize(event) {
@@ -119,6 +138,8 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.criandoCategoria = false;
     localStorage.setItem('criandoCategoria', 'false');
 
+    this.erroCriarCategoria = '';
+
   }
 
   criarCategoria() {
@@ -127,26 +148,54 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   cadastrarCategoria() {
-    if(this.criarCategoriaForm.valid) {
-      const categoria = this.criarCategoriaForm.getRawValue() as Categoria;
-      this.categoriaService.cadastrarCategoria(this.currentToken, categoria)
-        .subscribe(
-          (response) => {
-            console.log('Categoria criada com sucesso');
-            console.log(response);
-            this.voltarParaCategorias();
-            this.ngOnInit();
-          },
-          err => {
-            console.log('Não deu pra criar a categoria');
-            console.log(err);
-          }
-        );
+    if (this.criarCategoriaForm.valid) {
+      var categoria = this.criarCategoriaForm.getRawValue() as Categoria;
+      if (categoria && this.arquivoSelecionado) {
+        this.categoriaService.cadastrarCategoria(this.currentToken, categoria)
+          .subscribe(
+            (response) => {
+              categoria.id = response['id'];
+              // Já que foi criada com sucesso fazer upload da imagem
+              this.categoriaService.cadastrarImagemCategoria(this.currentToken, categoria, this.arquivoSelecionado)
+                .subscribe(
+                  () => {
+                    // Fez o que tinha que fazer agora limpa o arquivo selecionado
+                    this.arquivoSelecionado = null;
+                    // Fez tudo agora retorna pras categorias
+                    this.voltarParaCategorias();
+                    this.ngOnInit();
+
+                  },
+                  error => {
+                    console.log('Não foi possível cadastrar imagem');
+                    console.log(error);
+                    this.erroCriarCategoria = 'Não foi possível cadastrar imagem, tente novamente';
+                    //já que não deu pra cadastrar imagem, deleta categoria
+                  }
+                );
+            },
+            err => {
+              console.log('Não foi possível criar a categoria');
+              console.log(err);
+              this.erroCriarCategoria = 'Não foi possível criar categoria, tente novamente';
+
+            }
+          );
+
+      }else {
+        console.log('Não foi selecionada uma imagem para a categoria');
+        this.erroCriarCategoria = 'Selecione uma imagem para a categoria';
+      }
     }
   }
 
   public hasError = (controlName: string, errorName: string) => {
     return this.criarCategoriaForm.controls[controlName].hasError(errorName);
+  }
+
+  public onFileChanged(event) {
+    const file = event.target.files[0];
+    this.arquivoSelecionado = file;
   }
 
 }
