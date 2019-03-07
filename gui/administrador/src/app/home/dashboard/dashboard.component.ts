@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, Sanitizer, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Token } from '../token';
 import { CategoriaService } from './categoria.service';
@@ -6,36 +6,49 @@ import { CartaoService } from './cartao.service';
 import { Categoria } from '../categoria';
 import { Cartao } from '../cartao';
 import { DomSanitizer } from '@angular/platform-browser';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   currentToken: Token;
   categorias: Categoria[];
   cartoes: Cartao[];
   mostrarCartoes: number;
+  
   criandoCategoria: boolean;
+  criarCategoriaForm: FormGroup;
+  erroCriarCategoria = '';
 
   breakpoint: any;
-  nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   constructor(private route: ActivatedRoute,
             private router: Router,
             private categoriaService: CategoriaService,
             private cartaoService: CartaoService,
-            private sanitizer: DomSanitizer) {}
+            private sanitizer: DomSanitizer,
+            private formBuilder: FormBuilder,
+            private elementRef: ElementRef) {}
 
+
+
+  ngAfterViewInit() {
+    this.elementRef.nativeElement.ownerDocument.body.style.backgroundColor = 'white';
+  }
+  
   ngOnDestroy() {
     localStorage.setItem('mostrarCartoes', '0');
     localStorage.setItem('criandoCategoria', 'false');
   }
 
-  ngOnInit() {
+  ngOnInit() {    
+
     this.criandoCategoria = localStorage.getItem('criandoCategoria')==='true' ? true : false;
+
     this.mostrarCartoes = parseInt(localStorage.getItem('mostrarCartoes'));
     this.route.params.subscribe(params => {
       this.currentToken = params as Token;
@@ -83,7 +96,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.breakpoint = (window.innerWidth <= 400) ? 1 : 4;
 
-
+    this.criarCategoriaForm = this.formBuilder.group({
+      nome: ['', Validators.required],
+      descricao: ['', Validators.required]
+    });
+    console.log(this.criandoCategoria);
   }
 
   onResize(event) {
@@ -101,11 +118,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.criandoCategoria = false;
     localStorage.setItem('criandoCategoria', 'false');
+
   }
 
   criarCategoria() {
     this.criandoCategoria = true;
     localStorage.setItem('criandoCategoria', 'true');
+  }
+
+  cadastrarCategoria() {
+    if(this.criarCategoriaForm.valid) {
+      const categoria = this.criarCategoriaForm.getRawValue() as Categoria;
+      this.categoriaService.cadastrarCategoria(this.currentToken, categoria)
+        .subscribe(
+          (response) => {
+            console.log('Categoria criada com sucesso');
+            console.log(response);
+            this.voltarParaCategorias();
+            this.ngOnInit();
+          },
+          err => {
+            console.log('Não deu pra criar a categoria');
+            console.log(err);
+          }
+        );
+    }
+  }
+
+  public hasError = (controlName: string, errorName: string) => {
+    return this.criarCategoriaForm.controls[controlName].hasError(errorName);
   }
 
 }

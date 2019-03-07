@@ -9,6 +9,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule, MatIconModule } from '@angular/material';
 import { DarkenOnHoverModule } from '../darken-on-hover/darken-on-hover.module';
+import { FileSelectDirective } from 'ng2-file-upload';
 
 @NgModule({
     declarations: [ RegistrationComponent, SigninComponent, DashboardComponent ],
@@ -20,7 +21,8 @@ import { DarkenOnHoverModule } from '../darken-on-hover/darken-on-hover.module';
         MatGridListModule,
         MatCardModule,
         MatIconModule,
-        DarkenOnHoverModule
+        DarkenOnHoverModule,
+        FileSelectDirective
     ]
 })
 export class HomeModule {}

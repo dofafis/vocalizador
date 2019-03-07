@@ -1,13 +1,13 @@
-<mat-toolbar class="back-style" (click)="voltarParaCategorias()" *ngIf="mostrarCartoes != 0 || criandoCategoria" apDarkenOnHover ng-click>
+<mat-toolbar class="back-style" (click)="voltarParaCategorias()" apDarkenOnHover ng-click>
   <mat-toolbar-row>
     <!--  <span>HOME</span> -->
     <span>
-      <mat-icon>keyboard_backspace</mat-icon>
-      <a class="color-font"> Voltar</a>
+      <mat-icon *ngIf="mostrarCartoes != 0 || criandoCategoria">keyboard_backspace</mat-icon>
+      <a *ngIf="mostrarCartoes != 0 || criandoCategoria" class="color-font"> Voltar</a>
+      <a *ngIf="mostrarCartoes == 0 && !criandoCategoria"> Categorias</a>
     </span>
   </mat-toolbar-row>
 </mat-toolbar>
-
 
 <mat-grid-list *ngIf="mostrarCartoes == 0 && !criandoCategoria" [cols]="breakpoint" rowHeight="2:1.5" (window:resize)="onResize($event)">
   <br/>
@@ -43,3 +43,30 @@
   </div>
 </mat-grid-list>
 
+<mat-card *ngIf="criandoCategoria" class="example-form">
+    <mat-card-content>
+      <br/>
+      <mat-error *ngIf="erroCriarCategoria.length > 0"> {{ erroCriarCategoria }} </mat-error>
+      <br/>
+      <form class="my-form" [formGroup]="criarCategoriaForm">
+        <br/>
+        <mat-form-field class="full-width">
+          <mat-label>Nome</mat-label>
+          <input formControlName="nome" matInput  placeholder="Nome" name="nome">
+          <mat-error *ngIf="hasError('nome', 'required')">Nome é um campo obrigatório</mat-error>
+        </mat-form-field>
+        <br/>
+        <br/>
+        <mat-form-field class="full-width">
+          <mat-label>Descrição</mat-label>
+          <input formControlName="descricao" matInput  placeholder="Descrição" name="descricao">
+          <mat-error *ngIf="hasError('descricao', 'required')">Descrição é um campo obrigatório</mat-error>
+        </mat-form-field>
+        <br/>
+      </form>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button (click)="cadastrarCategoria()" class="background-color" >CADASTRAR</button>
+    </mat-card-actions>
+  </mat-card>
+  

@@ -6,6 +6,11 @@
   cursor: pointer;
 }
 
+.full-width {
+  max-width: 350px;
+  min-width: 300px;
+}
+
 .back-style {
   background-color: #338eab;
   color: white
@@ -31,6 +36,15 @@ mat-grid-tile {
   background-color: lightblue;
   width: 100%; /* Here you can use wherever you want to specify the width and also the height of the <img>*/
   height: 100%;
+}
+
+.example-form {
+  max-width: 350px;
+  min-height: 400px;
+  margin-top: 10%;
+  margin: auto;
+  text-align: center;
+  background-color: lightblue;
 }
 
 mat-card img{

@@ -1,5 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Token } from '../token';
+import { Categoria } from '../categoria';
 
 const API = 'http://localhost:3000';
 
@@ -31,6 +33,18 @@ export class CategoriaService {
       return this.http
         .get(API + '/categorias?id=' + id_categoria, httpOptions);
 
+    }
+
+    cadastrarCategoria(token: Token, categoria: Categoria) {
+      const httpOptions = {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+          'token': token.id
+        })
+      };
+
+      return this.http
+        .post(API + '/categorias', categoria, httpOptions);
     }
 
 }

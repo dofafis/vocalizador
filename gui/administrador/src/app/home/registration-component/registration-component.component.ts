@@ -18,8 +18,7 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
   constructor(private elementRef: ElementRef,
               private formBuilder: FormBuilder,
               private registrationService: RegistrationService,
-              private router: Router
-) { }
+              private router: Router) { }
 
   ngOnInit() {
     this.registrationForm = this.formBuilder.group({
