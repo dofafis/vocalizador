@@ -75,4 +75,16 @@ export class CategoriaService {
       return this.http.post(API + '/arquivos/categorias', uploadData, httpOptions);
     }
 
+    deletarCategoria(token: Token, id_categoria: number) {
+      const httpOptions = {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+          'token': token.id
+        })
+      };
+
+      return this.http
+        .delete(API + '/categorias?id=' + id_categoria, httpOptions);
+    }
+
 }

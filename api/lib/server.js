@@ -131,8 +131,6 @@ server.unifiedServer = function(req,res){
         form.parse(req, function(err, fields, files) {
           
           if(!err) {
-            console.log(req.headers);
-            
             // Check the router for a matching path for a handler. If one is not found, use the notFound handler instead.
             var chosenHandler = typeof(server.arquivos[trimmedPath.split('/')[1]]) !== 'undefined' ? server.arquivos[trimmedPath.split('/')[1]] : handlers.notFound;
             // Construct the data object to send to the handler
@@ -143,35 +141,35 @@ server.unifiedServer = function(req,res){
               'headers' : headers,
               'payload' : {'fields': fields, 'files': files},
             };
-            
+
             // Route the request to the handler specified in the router
             chosenHandler(data,function(statusCode, payload){
-              
+
               if( typeof(payload) == 'string' ){
                 var filePath = payload;
                 var stat = fs.statSync(filePath);
-                
-                
+
+
                 // Return the response
                 res.setHeader('Content-Type', 'image/png');
                 res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
                 res.setHeader('Access-Control-Allow-Credentials', true);
                 res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
                 res.writeHead(statusCode);
-                
+
                 var readStream = fs.createReadStream(filePath);
                 readStream.pipe(res);
-                
+
               }else {
                 // Use the status code returned from the handler, or set the default status code to 200
                 statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
-                
+
                 // Use the payload returned from the handler, or set the default payload to an empty object
                 payload = typeof(payload) == 'object'? payload : {};
-                
+
                 // Convert the payload to a string
                 var payloadString = JSON.stringify(payload);
-                
+
                 // Return the response
                 res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
                 res.setHeader('Access-Control-Allow-Credentials', true);
@@ -180,7 +178,7 @@ server.unifiedServer = function(req,res){
                 res.writeHead(statusCode);
                 res.end(payloadString);
               }
-              
+
               // If the response is 200, print green, otherwise print red
               if(statusCode == 200){
                 debug('\x1b[32m%s\x1b[0m',method.toUpperCase()+' /'+trimmedPath+' '+statusCode);
@@ -189,7 +187,6 @@ server.unifiedServer = function(req,res){
               }
             });
           }else {
-            console.log(err);
             res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
             res.setHeader('Access-Control-Allow-Credentials', true);
             res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
@@ -197,7 +194,7 @@ server.unifiedServer = function(req,res){
             res.writeHead(500);
             res.end({'Error': 'Não foi possível fazer upload do arquivo'});
           }
-          
+
         });
       }
   } else {
@@ -209,7 +206,7 @@ server.unifiedServer = function(req,res){
          buffer += decoder.write(data);
      });
      req.on('end', function() {
-    
+
          buffer += decoder.end();
 
          // Check the router for a matching path for a handler. If one is not found, use the notFound handler instead.
@@ -233,28 +230,28 @@ server.unifiedServer = function(req,res){
           res.end();
          }else {
 
-           
+
            // Route the request to the handler specified in the router
            chosenHandler(data,function(statusCode,payload){
-             
+
              // Use the status code returned from the handler, or set the default status code to 200
              statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
-             
+
              // Use the payload returned from the handler, or set the default payload to an empty object
              payload = typeof(payload) == 'object'? payload : {};
-             
+
              // Convert the payload to a string
              var payloadString = JSON.stringify(payload);
-             
+
              // Return the response
              res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
              res.setHeader('Access-Control-Allow-Credentials', true);
              res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
              res.setHeader('Content-Type', 'application/json; charset=UTF-8');
              res.writeHead(statusCode);
-             
+
              res.end(payloadString);
-             
+
              // If the response is 200, print green, otherwise print red
              if(statusCode == 200){
                 debug('\x1b[32m%s\x1b[0m',method.toUpperCase()+' /'+trimmedPath+' '+statusCode);

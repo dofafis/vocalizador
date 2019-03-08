@@ -17,12 +17,15 @@
       <img mat-card-image src="./assets/add-sign.png" />
     </mat-card>
   </mat-grid-tile>
-  <mat-grid-tile *ngFor="let categoria of categorias" apDarkenOnHover ng-click>
-    <mat-card (click)="selecionarCategoria(categoria.id)" class="example-card">
-      <mat-card-title> {{ categoria.nome }} </mat-card-title>
-      <img mat-card-image *ngIf="categoria" [src]="categoria?.imagem || ''" />
-      <mat-card-actions>
-      </mat-card-actions>
+  <mat-grid-tile *ngFor="let categoria of categorias" >
+    <mat-card class="example-card" apDarkenOnHover ng-click>
+      <div (click)="selecionarCategoria(categoria.id)" >
+        <mat-card-title > {{ categoria.nome }} </mat-card-title>
+        <img mat-card-image *ngIf="categoria" [src]="categoria?.imagem || ''" />
+      </div>
+      <mat-card-footer >
+        <button apDarkenOnHover ng-click mat-icon-button><mat-icon>edit</mat-icon>Editar</button>
+      </mat-card-footer>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
@@ -44,6 +47,9 @@
 </mat-grid-list>
 
 <mat-card *ngIf="criandoCategoria" class="example-form">
+    <mat-card-title style="color: gray;">
+      Cadastro de Categoria
+    </mat-card-title>
     <mat-card-content>
       <br/>
       <mat-error *ngIf="erroCriarCategoria.length > 0"> {{ erroCriarCategoria }} </mat-error>

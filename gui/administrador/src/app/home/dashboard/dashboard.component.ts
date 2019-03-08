@@ -108,8 +108,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         },
         (error) => {
-          console.log(error);
-          console.log("Problema ao pegar cartoes");
           // @TODO Tratar erros e mensagens de erro
         }
       );
@@ -149,7 +147,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   cadastrarCategoria() {
     if (this.criarCategoriaForm.valid) {
-      var categoria = this.criarCategoriaForm.getRawValue() as Categoria;
+      const categoria = this.criarCategoriaForm.getRawValue() as Categoria;
       if (categoria && this.arquivoSelecionado) {
         this.categoriaService.cadastrarCategoria(this.currentToken, categoria)
           .subscribe(
@@ -167,23 +165,28 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
 
                   },
                   error => {
-                    console.log('Não foi possível cadastrar imagem');
-                    console.log(error);
                     this.erroCriarCategoria = 'Não foi possível cadastrar imagem, tente novamente';
-                    //já que não deu pra cadastrar imagem, deleta categoria
+                    // Já que não deu pra cadastrar imagem, deleta categoria
+                    this.categoriaService.deletarCategoria(this.currentToken, categoria.id)
+                      .subscribe(
+                        () => {
+                          // Tudo certo categoria deletada
+                        },
+                        err => {
+                          // Erro ao deletar a categoria
+                        }
+                      );
                   }
                 );
             },
             err => {
-              console.log('Não foi possível criar a categoria');
-              console.log(err);
-              this.erroCriarCategoria = 'Não foi possível criar categoria, tente novamente';
-
+              // Não foi possível criar a categoria
+              this.erroCriarCategoria = 'Categoria já existente';
             }
           );
 
-      }else {
-        console.log('Não foi selecionada uma imagem para a categoria');
+      } else {
+        // Não foi selecionada uma imagem para a categoria
         this.erroCriarCategoria = 'Selecione uma imagem para a categoria';
       }
     }

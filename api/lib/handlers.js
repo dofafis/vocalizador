@@ -99,13 +99,13 @@ handlers._usuarios.post = function(data,callback){
 
               }
             // Se houver erro a consulta não foi completada
-            }else callback(500, {'Error1': 'Não foi possível consultar o banco, tente novamente'});
+            }else callback(500, {'Error': 'Não foi possível consultar o banco, tente novamente'});
           });
 
         }
       // Se houver erro a consulta não foi completada
       }else{
-        callback(500, {'Error2': 'Não foi possível consultar o banco, tente novamente'});
+        callback(500, {'Error': 'Não foi possível consultar o banco, tente novamente'});
       }
     });
   } else {
@@ -658,7 +658,25 @@ handlers._categorias.delete = function(data, callback) {
                           // Deleta a categoria no banco
                           _data.delete('categoria', {'id': id}, function(err) {
                             if(!err){
-                              callback(200);
+                              // Confere se tem imagem e exclui ela junto
+                              glob(__dirname + '/../../storage/categorias/imagem/' + id + '.*', {}, function(err, files) {
+                                if(!err && files) {
+                                  if(files.length == 1) {
+                                    var caminhoImagem = files[0];
+                                    fs.unlink(caminhoImagem, (err) => {
+                                      if (!err) {
+                                        callback(200);
+                                      }else {
+                                        console.log('Não foi possível deletar a imagem do cartão');
+                                      }
+                                    });
+                                  }else {
+                                    callback(400, {'Error': 'A imagem deste cartão não existe, solicite ao administrador o upload da mesma'});
+                                  }
+                                }else {
+                                  callback(500, {'Error': 'Não foi possível encontrar o arquivo especificado, tente novamente ou verifique sua requisição'})
+                                }
+                              });
                             }else {
                               callback(500, {'Error': 'Não foi possível deletar a categoria, tente novamente'});
                             }
@@ -1088,7 +1106,25 @@ handlers._cartoes.delete = function(data, callback) {
                       _data.delete('cartao', {'id': id}, function(err) {
 
                         if(!err) {
-                          callback(200);
+                          // Confere se tem imagem e exclui ela junto
+                          glob(__dirname + '/../../storage/cartoes/imagem/' + id + '.*', {}, function(err, files) {
+                            if(!err && files) {
+                              if(files.length == 1) {
+                                var caminhoImagem = files[0];
+                                fs.unlink(caminhoImagem, (err) => {
+                                  if (!err) {
+                                    callback(200);
+                                  }else {
+                                    console.log('Não foi possível deletar a imagem do cartão');
+                                  }
+                                });
+                              }else {
+                                callback(400, {'Error': 'A imagem deste cartão não existe, solicite ao administrador o upload da mesma'});
+                              }
+                            }else {
+                              callback(500, {'Error': 'Não foi possível encontrar o arquivo especificado, tente novamente ou verifique sua requisição'})
+                            }
+                          });
                         }else {
                           callback(500, {'Error': 'Não foi possível deletar o cartão, tente novamente'});
                         }
