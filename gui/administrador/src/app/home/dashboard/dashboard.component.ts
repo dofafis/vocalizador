@@ -201,4 +201,8 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.arquivoSelecionado = file;
   }
 
+  public editarCategoria(categoria: Categoria) {
+    console.log(categoria);
+  }
+
 }
