@@ -66,6 +66,7 @@ server.unifiedServer = function(req,res){
       if(method === 'options') {
         res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
         res.setHeader('Access-Control-Allow-Credentials', true);
+        res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
         res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token");
         res.setHeader('Content-Type', 'application/json; charset=UTF-8');
         res.writeHead(204);
@@ -94,6 +95,7 @@ server.unifiedServer = function(req,res){
             res.setHeader('Content-Type', 'image/png');
             res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
             res.setHeader('Access-Control-Allow-Credentials', true);
+            res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
             res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
             res.writeHead(statusCode);
             
@@ -113,6 +115,7 @@ server.unifiedServer = function(req,res){
             // Return the response
             res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
             res.setHeader('Access-Control-Allow-Credentials', true);
+            res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
             res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
             res.setHeader('Content-Type', 'application/json; charset=UTF-8');
             res.writeHead(statusCode);
@@ -154,6 +157,7 @@ server.unifiedServer = function(req,res){
                 res.setHeader('Content-Type', 'image/png');
                 res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
                 res.setHeader('Access-Control-Allow-Credentials', true);
+                res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
                 res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
                 res.writeHead(statusCode);
 
@@ -173,6 +177,7 @@ server.unifiedServer = function(req,res){
                 // Return the response
                 res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
                 res.setHeader('Access-Control-Allow-Credentials', true);
+                res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
                 res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
                 res.setHeader('Content-Type', 'application/json; charset=UTF-8');
                 res.writeHead(statusCode);
@@ -189,6 +194,7 @@ server.unifiedServer = function(req,res){
           }else {
             res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
             res.setHeader('Access-Control-Allow-Credentials', true);
+            res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
             res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
             res.setHeader('Content-Type', 'application/json; charset=UTF-8');
             res.writeHead(500);
@@ -224,6 +230,7 @@ server.unifiedServer = function(req,res){
          if(method === 'options') {
           res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
           res.setHeader('Access-Control-Allow-Credentials', true);
+          res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
           res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
           res.setHeader('Content-Type', 'application/json; charset=UTF-8');
           res.writeHead(204);
@@ -246,6 +253,7 @@ server.unifiedServer = function(req,res){
              // Return the response
              res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
              res.setHeader('Access-Control-Allow-Credentials', true);
+             res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
              res.setHeader("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,token,responseType");
              res.setHeader('Content-Type', 'application/json; charset=UTF-8');
              res.writeHead(statusCode);

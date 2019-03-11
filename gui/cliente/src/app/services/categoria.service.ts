@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Token } from '../token';
-import { Categoria } from '../categoria';
+import { Token } from '../models/token';
+import { Categoria } from '../models/categoria';
 import { Observable } from 'rxjs';
 
 const API = 'http://localhost:3000';

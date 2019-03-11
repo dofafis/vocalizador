@@ -31,9 +31,9 @@ mat-grid-tile {
 
 .example-card {
   margin: auto;
-  object-fit: cover; /*this makes de image in src fit to the size of specified below*/
   text-align: center;
   background-color: lightblue;
+  object-fit: cover; /*this makes de image in src fit to the size of specified below*/
   width: 100%; /* Here you can use wherever you want to specify the width and also the height of the <img>*/
   height: 100%;
 }
@@ -49,6 +49,6 @@ mat-grid-tile {
 
 mat-card img{
   object-fit: cover; /*this makes de image in src fit to the size of specified below*/
-  width: 50%; /* Here you can use wherever you want to specify the width and also the height of the <img>*/
-  height: 50%;
+  width: 40%; /* Here you can use wherever you want to specify the width and also the height of the <img>*/
+  height: 40%;
 }

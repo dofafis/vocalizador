@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Token } from '../token';
+import { Token } from '../models/token';
 import { Observable } from 'rxjs';
-import { Cartao } from '../cartao';
+import { Cartao } from '../models/cartao';
 
 const API = 'http://localhost:3000';
 

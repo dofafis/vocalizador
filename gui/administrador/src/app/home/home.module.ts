@@ -7,12 +7,14 @@ import { MyMaterialModule } from '../material.module';
 import { HttpClientModule } from '@angular/common/http';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { MatCardModule, MatIconModule } from '@angular/material';
+import { MatCardModule, MatIconModule, MatDialogModule, MatButtonModule } from '@angular/material';
 import { DarkenOnHoverModule } from '../darken-on-hover/darken-on-hover.module';
 import { FileSelectDirective } from 'ng2-file-upload';
+import { DialogComponent } from './dialog/dialog.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
-    declarations: [ RegistrationComponent, SigninComponent, DashboardComponent, FileSelectDirective ],
+    declarations: [ RegistrationComponent, SigninComponent, DashboardComponent, FileSelectDirective, DialogComponent ],
     imports: [
         CommonModule,
         ReactiveFormsModule,
@@ -22,6 +24,12 @@ import { FileSelectDirective } from 'ng2-file-upload';
         MatCardModule,
         MatIconModule,
         DarkenOnHoverModule,
+        MatDialogModule,
+        MatButtonModule,
+        BrowserAnimationsModule
+    ],
+    entryComponents: [
+        DialogComponent
     ]
 })
 export class HomeModule {}

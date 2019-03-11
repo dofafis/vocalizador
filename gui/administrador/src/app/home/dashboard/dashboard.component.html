@@ -2,14 +2,14 @@
   <mat-toolbar-row>
     <!--  <span>HOME</span> -->
     <span>
-      <mat-icon *ngIf="mostrarCartoes != 0 || criandoCategoria">keyboard_backspace</mat-icon>
-      <a *ngIf="mostrarCartoes != 0 || criandoCategoria" class="color-font"> Voltar</a>
-      <a *ngIf="mostrarCartoes == 0 && !criandoCategoria"> Categorias</a>
+      <mat-icon *ngIf="mostrarCartoes != 0 || criandoCategoria || editandoCategoria || criandoCartao || editandoCartao">keyboard_backspace</mat-icon>
+      <a *ngIf="mostrarCartoes != 0 || criandoCategoria || editandoCategoria || criandoCartao || editandoCartao" class="color-font"> Voltar</a>
+      <a *ngIf="mostrarCartoes == 0 && !criandoCategoria && !editandoCategoria && !criandoCartao && !editandoCartao"> Categorias</a>
     </span>
   </mat-toolbar-row>
 </mat-toolbar>
 
-<mat-grid-list *ngIf="mostrarCartoes == 0 && !criandoCategoria" [cols]="breakpoint" rowHeight="2:1.5" (window:resize)="onResize($event)">
+<mat-grid-list *ngIf="mostrarCartoes == 0 && !criandoCategoria && !editandoCategoria && !criandoCartao && !editandoCartao" [cols]="breakpoint" rowHeight="2:1.5" (window:resize)="onResize($event)">
   <br/>
   <mat-grid-tile apDarkenOnHover ng-click>
     <mat-card (click)="criarCategoria()" class="example-card">
@@ -25,25 +25,33 @@
       </div>
 
       <mat-card-footer >
-        <button (click)="editarCategoria(categoria)" apDarkenOnHover ng-click mat-icon-button><mat-icon>edit</mat-icon>Editar</button>
+        <button (click)="editarCategoria(categoria)" apDarkenOnHover ng-click mat-button><mat-icon>edit</mat-icon>Editar</button>
+        <button (click)="confirmarExcluirCategoria(categoria)" apDarkenOnHover ng-click mat-button><mat-icon>delete</mat-icon>Excluir</button>
       </mat-card-footer>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
 
-<br/>
-
-<mat-grid-list *ngIf="mostrarCartoes != 0 && !criandoCategoria" [cols]="breakpoint" rowHeight="1.5:1.5" (window:resize)="onResize($event)">
+<mat-grid-list *ngIf="mostrarCartoes != 0 && !criandoCategoria && !editandoCategoria && !criandoCartao && !editandoCartao" [cols]="breakpoint" rowHeight="1.5:1.5" (window:resize)="onResize($event)">
+  <br/>
+  <mat-grid-tile apDarkenOnHover ng-click>
+    <mat-card (click)="criarCartao()" class="example-card">
+      <mat-card-title> Adicionar </mat-card-title>
+      <img mat-card-image src="./assets/add-sign.png" />
+    </mat-card>
+  </mat-grid-tile>
+  
   <div *ngFor="let cartao of cartoes">
     <mat-grid-tile *ngIf="cartao.id_categoria == mostrarCartoes" apDarkenOnHover ng-click>
       <mat-card class="example-card">
+        <br/>
         <div>
           <mat-card-title> {{ cartao.nome }} </mat-card-title>
           <img mat-card-image *ngIf="cartao" [src]="cartao?.imagem || ''" />
         </div>
-
         <mat-card-footer >
-          <button apDarkenOnHover ng-click mat-icon-button><mat-icon>edit</mat-icon>Editar</button>
+          <button (click)="editarCartao(cartao)" apDarkenOnHover ng-click mat-button><mat-icon>edit</mat-icon>Editar</button>
+          <button (click)="confirmarExcluirCartao(cartao)" apDarkenOnHover ng-click mat-button><mat-icon>delete</mat-icon>Excluir</button>
         </mat-card-footer>
       </mat-card>
     </mat-grid-tile>
@@ -63,14 +71,14 @@
         <mat-form-field class="full-width">
           <mat-label>Nome</mat-label>
           <input formControlName="nome" matInput  placeholder="Nome" name="nome">
-          <mat-error *ngIf="hasError('nome', 'required')">Nome é um campo obrigatório</mat-error>
+          <mat-error *ngIf="hasErrorCriarCategoria('nome', 'required')">Nome é um campo obrigatório</mat-error>
         </mat-form-field>
         <br/>
         <br/>
         <mat-form-field class="full-width">
           <mat-label>Descrição</mat-label>
           <input formControlName="descricao" matInput  placeholder="Descrição" name="descricao">
-          <mat-error *ngIf="hasError('descricao', 'required')">Descrição é um campo obrigatório</mat-error>
+          <mat-error *ngIf="hasErrorCriarCategoria('descricao', 'required')">Descrição é um campo obrigatório</mat-error>
         </mat-form-field>
         <br/>
         <br/>
@@ -89,3 +97,111 @@
       <button mat-raised-button (click)="cadastrarCategoria()" class="background-color" >CADASTRAR</button>
     </mat-card-actions>
   </mat-card>
+
+  <mat-card *ngIf="criandoCartao" class="example-form">
+      <mat-card-title style="color: gray;">
+        Cadastro de Cartao
+      </mat-card-title>
+      <mat-card-content>
+        <br/>
+        <mat-error *ngIf="erroCriarCartao.length > 0"> {{ erroCriarCartao }} </mat-error>
+        <br/>
+        <form class="my-form" [formGroup]="criarCartaoForm">
+          <br/>
+          <mat-form-field class="full-width">
+            <mat-label>Nome</mat-label>
+            <input formControlName="nome" matInput  placeholder="Nome" name="nome">
+            <mat-error *ngIf="hasErrorCriarCartao('nome', 'required')">Nome é um campo obrigatório</mat-error>
+          </mat-form-field>
+          <br/>
+          <br/>
+        </form>
+  
+        <input style="display: none" name="imagemCartao"
+          type="file" (change)="onFileChanged($event)" #fileInput >
+        <button mat-flat-button style="float:left;margin-left: 5%;" (click)="fileInput.click()">Selecione uma imagem</button>
+        <a *ngIf="arquivoSelecionado">{{arquivoSelecionado.name}}</a>
+  
+      </mat-card-content>
+      <mat-card-actions>
+        <br/>
+        <br/>
+        <br/>
+        <button mat-raised-button (click)="cadastrarCartao()" class="background-color" >CADASTRAR</button>
+      </mat-card-actions>
+    </mat-card>
+
+
+  <mat-card *ngIf="editandoCategoria" class="example-form">
+    <mat-card-title style="color: gray;">
+      Edição de Categoria
+    </mat-card-title>
+    <mat-card-content>
+      <br/>
+      <mat-error *ngIf="erroEditarCategoria.length > 0"> {{ erroEditarCategoria }} </mat-error>
+      <br/>
+      <form class="my-form" [formGroup]="editarCategoriaForm">
+        <br/>
+        <mat-form-field class="full-width">
+          <mat-label>Nome</mat-label>
+          <input formControlName="nome" matInput  placeholder="Nome" name="nome">
+          <mat-error *ngIf="hasErrorEditarCategoria('nome', 'required')">Nome é um campo obrigatório</mat-error>
+        </mat-form-field>
+        <br/>
+        <br/>
+        <mat-form-field class="full-width">
+          <mat-label>Descrição</mat-label>
+          <input formControlName="descricao" matInput  placeholder="Descrição" name="descricao">
+          <mat-error *ngIf="hasErrorEditarCategoria('descricao', 'required')">Descrição é um campo obrigatório</mat-error>
+        </mat-form-field>
+        <br/>
+        <br/>
+      </form>
+
+      <input style="display: none" name="imagemCategoria"
+        type="file" (change)="onFileChanged($event)" #fileInput >
+      <button mat-flat-button style="float:left;margin-left: 5%;" (click)="fileInput.click()">Selecione uma imagem</button>
+      <a *ngIf="arquivoSelecionado">{{arquivoSelecionado.name}}</a>
+
+    </mat-card-content>
+    <mat-card-actions>
+      <br/>
+      <br/>
+      <br/>
+      <button mat-raised-button (click)="cadastrarEdicaoCategoria()" class="background-color" >EDITAR</button>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card *ngIf="editandoCartao" class="example-form">
+      <mat-card-title style="color: gray;">
+        Edição de Cartão
+      </mat-card-title>
+      <mat-card-content>
+        <br/>
+        <mat-error *ngIf="erroEditarCartao.length > 0"> {{ erroEditarCartao }} </mat-error>
+        <br/>
+        <form class="my-form" [formGroup]="editarCartaoForm">
+          <br/>
+          <mat-form-field class="full-width">
+            <mat-label>Nome</mat-label>
+            <input formControlName="nome" matInput  placeholder="Nome" name="nome">
+            <mat-error *ngIf="hasErrorEditarCartao('nome', 'required')">Nome é um campo obrigatório</mat-error>
+          </mat-form-field>
+          <br/>
+          <br/>
+        </form>
+  
+        <input style="display: none" name="imagemCartao"
+          type="file" (change)="onFileChanged($event)" #fileInput >
+        <button mat-flat-button style="float:left;margin-left: 5%;" (click)="fileInput.click()">Selecione uma imagem</button>
+        <a *ngIf="arquivoSelecionado">{{arquivoSelecionado.name}}</a>
+  
+      </mat-card-content>
+      <mat-card-actions>
+        <br/>
+        <br/>
+        <br/>
+        <button mat-raised-button (click)="cadastrarEdicaoCartao()" class="background-color" >EDITAR</button>
+      </mat-card-actions>
+    </mat-card>
+  

@@ -1788,7 +1788,7 @@ handlers.arquivos._cartoes.put = function(data, callback) {
       var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token.trim() : false;
 
       if(token) {
-
+        
         _data.selectByField('token', {'id': token}, function(err, tokenData) {
           if(!err && tokenData) {
             if(tokenData.length == 1) {
@@ -1811,9 +1811,9 @@ handlers.arquivos._cartoes.put = function(data, callback) {
 
                             if(!err) {
                               callback(200);
-                              }else {
-                                callback(500, {'Error': 'Não foi possível fazer o upload da imagem, tente novamente'});
-                              }
+                            }else {
+                              callback(500, {'Error': 'Não foi possível fazer o upload da imagem, tente novamente'});
+                            }
 
                           });
                         }
@@ -1970,16 +1970,15 @@ handlers.arquivos._categorias.post = function(data, callback) {
 // Dados obrigatórios: id
 // Dados opcionais: none
 handlers.arquivos._categorias.get = function(data, callback) {
-
   // Conferir dados obrigatórios
   var id = typeof(data.queryStringObject.id) == 'string' && data.queryStringObject.id.trim().length > 0 ? data.queryStringObject.id : false;
-
+  
   if(id) {
-
+    
     var token = typeof(data.headers.token) == 'string' && data.headers.token.trim().length == 20 ? data.headers.token : false;
-
+    
     if(token) {
-
+      
       _data.selectByField('token', {'id': token}, function(err, tokenData) {
         if(!err && tokenData) {
           if(tokenData.length == 1) {
@@ -1990,7 +1989,7 @@ handlers.arquivos._categorias.get = function(data, callback) {
                   if(files.length == 1) {
                     var caminhoImagem = files[0];
                     callback(200, caminhoImagem);
-
+                    
                   }else {
                     callback(400, {'Error': 'A imagem desta categoria não existe, solicite ao administrador o upload da mesma'});
                   }
