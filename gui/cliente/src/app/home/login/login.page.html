@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar class="toolbar-background">
+    <ion-title class="title">Login</ion-title>
+    <ion-button class="entrar">Entrar</ion-button>
+    <ion-button class="cadastrar">Cadastrar-se</ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-card class="card">
+    <ion-title class="card-title">Login</ion-title>
+
+    <form [formGroup]="loginForm">
+      <br/>
+      <br/>
+      <div class="full-width">
+        <ion-item>
+          <ion-input [formControl]="loginForm.controls['login']" placeholder="Login"
+          type="login"></ion-input>
+        </ion-item>
+      </div>
+      <br/>
+      <div class="full-width">
+        <ion-item>
+          <ion-input [formControl]="loginForm.controls['senha']" placeholder="Senha"
+          type="password"></ion-input>
+        </ion-item>
+      </div>
+
+      <ion-row>
+        <ion-col text-center>
+          <ion-button block (click)="logar()">
+            Entrar
+          </ion-button>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col text-center>
+          <ion-button clear color="light" (click)="esqueceuASenha()">
+            Esqueceu a senha?
+          </ion-button>
+        </ion-col>
+      </ion-row>
+
+    </form>
+  </ion-card>
+
+</ion-content>
+
+<router-outlet></router-outlet>

@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { LoginService } from '../../services/login.service';
+import { LoginInfo } from '../../models/login-info';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +17,8 @@ export class LoginPage implements OnInit {
   constructor(
     public navCtrl: NavController,
     private formBuilder: FormBuilder,
+    private loginService: LoginService,
+    private router: Router,
   ) {
     this.loginForm = this.formBuilder.group({
       'login': ['', Validators.required],
@@ -23,13 +28,22 @@ export class LoginPage implements OnInit {
 
   ngOnInit() {
 
-    
-
   }
 
   logar() {
-    console.log('hihihi');
-    if(this.loginForm.valid) {
+    if (this.loginForm.valid) {
+      const loginInfo = this.loginForm.getRawValue() as LoginInfo;
+
+      this.loginService.logarUsuario(loginInfo).subscribe(
+        (result) => {
+          // token de acesso
+          const token = result;
+          this.router.navigate(['/dashboard', token]);
+        },
+        err => {
+          // erro
+        }
+      );
     }
   }
 

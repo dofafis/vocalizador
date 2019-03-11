@@ -21,11 +21,13 @@
 
 .card {
     max-width: 350px;
-    min-height: 400px;
-    margin-top: 10%;
+    max-height: 400px;
+    min-height: 300px;
+    min-width: 250px;
     margin: auto;
     text-align: center;
     --background: #7d6ebb75;
+    background-size: cover;
 }
 
 .card-title {
