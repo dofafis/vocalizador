@@ -2,14 +2,12 @@
   <ion-toolbar class="toolbar-background">
     <ion-title class="title">Login</ion-title>
     <ion-button class="entrar">Entrar</ion-button>
-    <ion-button class="cadastrar">Cadastrar-se</ion-button>
   </ion-toolbar>
 </ion-header>
 
 <ion-content padding>
   <ion-card class="card">
-    <ion-title class="card-title">Login</ion-title>
-
+    
     <form [formGroup]="loginForm">
       <br/>
       <br/>
@@ -26,7 +24,7 @@
           type="password"></ion-input>
         </ion-item>
       </div>
-
+      
       <ion-row>
         <ion-col text-center>
           <ion-button block (click)="logar()">
@@ -34,7 +32,7 @@
           </ion-button>
         </ion-col>
       </ion-row>
-
+      
       <ion-row>
         <ion-col text-center>
           <ion-button clear color="light" (click)="esqueceuASenha()">
@@ -43,6 +41,7 @@
         </ion-col>
       </ion-row>
 
+      <ion-button class="criar-conta">Criar conta</ion-button>
     </form>
   </ion-card>
 

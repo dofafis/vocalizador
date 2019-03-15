@@ -8,6 +8,7 @@ import { HomePage } from './home.page';
 import { LoginPage } from './login/login.page';
 import { DashboardPage } from './dashboard/dashboard.page';
 
+
 @NgModule({
   imports: [
     CommonModule,
@@ -29,6 +30,6 @@ import { DashboardPage } from './dashboard/dashboard.page';
       }
     ])
   ],
-  declarations: [HomePage, LoginPage, DashboardPage]
+  declarations: [HomePage, LoginPage, DashboardPage],
 })
 export class HomePageModule {}
