@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Categoria } from 'src/app/models/categoria';
 import { CategoriaService } from 'src/app/services/categoria.service';
@@ -27,6 +27,9 @@ export class DashboardPage implements OnInit {
 
   mostrarCartoes = 0;
 
+  criandoPainel: boolean;
+  criarPainelForm: FormGroup;
+
   breakpoint: any;
 
   constructor(
@@ -35,10 +38,13 @@ export class DashboardPage implements OnInit {
     private cartaoService: CartaoService,
     private router: Router,
     private route: ActivatedRoute,
-    private tts: TextToSpeech
+    private tts: TextToSpeech,
+    private formBuilder: FormBuilder,
   ) { }
 
   ngOnInit() {
+
+    this.criandoPainel = false;
 
     this.route.params.subscribe(params => {
 
@@ -94,6 +100,11 @@ export class DashboardPage implements OnInit {
 
       }
 
+      this.criarPainelForm = this.formBuilder.group({
+        nome: ['', Validators.required],
+        descricao: ['', Validators.required]
+      });
+
     });
   }
 
@@ -147,6 +158,10 @@ export class DashboardPage implements OnInit {
         console.log('deu ruim');
       });
 
+  }
+
+  criarPainel() {
+    this.criandoPainel = true;
   }
 
 }

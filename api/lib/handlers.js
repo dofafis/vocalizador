@@ -1340,7 +1340,17 @@ handlers._paineis.get = function(data, callback) {
                   _data.selectByField('painel', {'id': id, 'id_usuario': id_usuario}, function(err, painelData) {
                     if(!err && painelData) {
                       if(painelData.length == 1) {
-                        callback(200, painelData[0]);
+                        _data.selectByField('rel_painel_cartao', {'id_painel': id}, function(err, relData) {
+                          if(!err && relData) {
+                            
+                            callback(200, { 'painel': painelData[0], 'cartoes': relData });
+
+                          }else {
+
+                            callback(500, {'Error': 'Não foi possível pegar os cartões do painel'});
+                          
+                          }
+                        });
                       }else {
                         callback(400, {'Error': 'Painel inexistente'});
                       }
@@ -1403,7 +1413,7 @@ handlers._paineis.get = function(data, callback) {
       }
     }
   }else {
-    callback(400, {'Error': 'Faltando dado obrigatório (id_usuario)'});
+    callback(400, { 'Error': 'Faltando dado obrigatório (id_usuario)' });
   }
 }
 

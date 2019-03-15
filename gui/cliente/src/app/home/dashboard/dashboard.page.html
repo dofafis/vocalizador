@@ -9,20 +9,20 @@
 
 <ion-content padding>
 
-  <ion-item text-wrap>
+  <ion-item text-wrap *ngIf="!criandoPainel">
     <ion-button (click)="limpar()" style="--background: gray;">Limpar</ion-button>
     <ion-button (click)="apagarAnterior()"  style="--background: gray;">Apagar anterior</ion-button>
     &nbsp;
     <ion-label text-wrap class="textbox"> {{ fraseVocalizada }} </ion-label>
     &nbsp;
-    <ion-button>Vocalizar</ion-button>
+    <ion-button (click)="vocalizar()">Vocalizar</ion-button>
   </ion-item>
   
   <br/>
 
-  <ion-button *ngIf="mostrarCartoes != 0" class="title" (click)="voltarParaCategorias()" ><ion-icon ios="ios-arrow-back" md="md-arrow-back"></ion-icon>Voltar</ion-button>
-  <ion-button *ngIf="mostrarCartoes === 0" (click)="expandirCategorias()" style="width: 100%; text-align: left;"><ion-icon *ngIf="!categoriasExpandidas" ios="ios-arrow-dropdown" md="md-arrow-dropdown"></ion-icon><ion-icon *ngIf="categoriasExpandidas" ios="ios-arrow-dropup" md="md-arrow-dropup"></ion-icon>Categorias</ion-button>
-  <ion-grid *ngIf="categoriasExpandidas">
+  <ion-button *ngIf="mostrarCartoes != 0 || criandoPainel" class="title" (click)="voltarParaCategorias()" ><ion-icon ios="ios-arrow-back" md="md-arrow-back"></ion-icon>Voltar</ion-button>
+  <ion-button *ngIf="mostrarCartoes === 0 && !criandoPainel" (click)="expandirCategorias()" style="width: 100%; text-align: left;"><ion-icon *ngIf="!categoriasExpandidas" ios="ios-arrow-dropdown" md="md-arrow-dropdown"></ion-icon><ion-icon *ngIf="categoriasExpandidas" ios="ios-arrow-dropup" md="md-arrow-dropup"></ion-icon>Categorias</ion-button>
+  <ion-grid *ngIf="categoriasExpandidas && !criandoPainel">
     <ion-row >
       <ion-col col-6 col-md-4 col-xl-3 *ngFor="let categoria of categorias" >
         <ion-card mode="ios" class="card" (click)="selecionarCategorias(categoria.id)" >
@@ -33,7 +33,7 @@
     </ion-row>
   </ion-grid>
   
-  <ion-grid *ngIf="mostrarCartoes != 0">
+  <ion-grid *ngIf="mostrarCartoes != 0 && !criandoPainel">
     <br/>
     <br/>
     <br/>
@@ -46,4 +46,24 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+
+  <ion-button *ngIf="mostrarCartoes === 0 && !criandoPainel" (click)="expandirPaineis()" style="width: 100%; text-align: left;"><ion-icon *ngIf="!categoriasExpandidas" ios="ios-arrow-dropdown" md="md-arrow-dropdown"></ion-icon><ion-icon *ngIf="categoriasExpandidas" ios="ios-arrow-dropup" md="md-arrow-dropup"></ion-icon>Categorias</ion-button>
+  <ion-grid *ngIf="paineisExpandidos && !criandoPainel">
+    <ion-row >
+      <ion-col col-6 col-md-4 col-xl-3 >
+        <ion-card mode="ios" class="card" (click)="criarPainel()" >
+          <ion-title class="card-title"> Adicionar Painel </ion-title>
+          <ion-img class="card-image" src="assets/add-sign.png"></ion-img>
+        </ion-card>
+      </ion-col>
+      <ion-col col-6 col-md-4 col-xl-3 *ngFor="let painel of paineis" >
+        <ion-card mode="ios" class="card" (click)="selecionarPainel(painel.id)" >
+          <ion-title class="card-title"> {{ painel.nome }} </ion-title>
+          <ion-img class="card-image" [src]="painel.imagem"></ion-img>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
 </ion-content>
