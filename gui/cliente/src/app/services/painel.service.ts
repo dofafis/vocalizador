@@ -43,7 +43,7 @@ export class PainelService {
         'token': token.id
       })
     };
-
+    console.log(painel);
     return this.http
       .post(API + '/paineis', painel, httpOptions);
   }

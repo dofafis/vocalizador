@@ -20,14 +20,23 @@
 }
 
 .card {
-    max-width: 350px;
-    max-height: 400px;
-    min-height: 300px;
-    min-width: 250px;
+    max-width: 300px;
+    max-height: 350px;
+    min-height: 250px;
+    min-width: 200px;
     margin: auto;
     text-align: center;
     --background: #7d6ebb75;
     background-size: cover;
+}
+
+.form-cria {
+    max-width: 350px;
+    min-height: 400px;
+    margin-top: 10%;
+    margin: auto;
+    text-align: center;
+    --background: #7d6ebb75;
 }
 
 .card-title {
@@ -49,9 +58,19 @@
     height: 95%;
     margin: auto;
 }
+.card-image-add-sign {
+    background-size: cover;
+    width: 65%;
+    height: 65%;
+    margin: auto;
+}
 
 .textbox {
     --background: lightgray;
     color: black;
     opacity: 0.7;
+}
+
+.card-action {
+    margin-top: 30%;
 }
