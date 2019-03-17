@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 
 import { LoginInfo } from '../login-info';
 
-const API = 'http://localhost:3000';
+const API = 'http://93.188.167.70';
 
 @Injectable({ providedIn: 'root' })
 export class LoginService {

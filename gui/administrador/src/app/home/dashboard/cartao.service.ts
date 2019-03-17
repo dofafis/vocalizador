@@ -4,7 +4,7 @@ import { Token } from '../token';
 import { Observable } from 'rxjs';
 import { Cartao } from '../cartao';
 
-const API = 'http://localhost:3000';
+const API = 'http://93.188.167.70';
 
 @Injectable({ providedIn: 'root' })
 export class CartaoService {

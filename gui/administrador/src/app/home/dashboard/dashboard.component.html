@@ -33,7 +33,8 @@
 </mat-grid-list>
 
 <mat-grid-list *ngIf="mostrarCartoes != 0 && !criandoCategoria && !editandoCategoria && !criandoCartao && !editandoCartao" [cols]="breakpoint" rowHeight="1.5:1.5" (window:resize)="onResize($event)">
-  <br/>
+
+  <h3 style="text-align: center;">Cartões</h3>
   <mat-grid-tile apDarkenOnHover ng-click>
     <mat-card (click)="criarCartao()" class="example-card">
       <mat-card-title> Adicionar </mat-card-title>

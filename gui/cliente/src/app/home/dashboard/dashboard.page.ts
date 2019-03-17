@@ -278,7 +278,7 @@ export class DashboardPage implements OnInit {
       result => {
         this.mostrarCartoes = -1;
         for(let i=0; i<this.todosCartoes.length; i++) {
-          if(result.cartoes.indexOf(this.todosCartoes[i]) != -1) {
+          if(result['cartoes'].indexOf(this.todosCartoes[i]) != -1) {
             this.cartoes.push(this.todosCartoes[i]);
           }
         }
