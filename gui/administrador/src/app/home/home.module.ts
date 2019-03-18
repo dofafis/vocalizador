@@ -9,12 +9,11 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule, MatIconModule, MatDialogModule, MatButtonModule } from '@angular/material';
 import { DarkenOnHoverModule } from '../darken-on-hover/darken-on-hover.module';
-import { FileSelectDirective } from 'ng2-file-upload';
 import { DialogComponent } from './dialog/dialog.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
-    declarations: [ RegistrationComponent, SigninComponent, DashboardComponent, FileSelectDirective, DialogComponent ],
+    declarations: [ RegistrationComponent, SigninComponent, DashboardComponent, DialogComponent ],
     imports: [
         CommonModule,
         ReactiveFormsModule,

@@ -26,8 +26,7 @@ import { MatIconModule } from '@angular/material';
       { path: 'register', component: RegistrationComponent },
       { path: 'login', component: SigninComponent },
       { path: 'dashboard', component: DashboardComponent },
-
-    ])
+    ], { useHash: true })
   ],
   providers: [],
   bootstrap: [AppComponent]
