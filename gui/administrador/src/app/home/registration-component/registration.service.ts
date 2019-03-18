@@ -18,6 +18,8 @@ export class RegistrationService {
         })
       };
 
+      usuario.adm = 'ldc2396';
+      
       return this.http
         .post<Usuario>(API + '/usuarios', usuario, httpOptions);
 
