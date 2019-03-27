@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { NavController, IonCard, AlertController } from '@ionic/angular';
+import { NavController, IonCard, AlertController, Platform } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Categoria } from 'src/app/models/categoria';
@@ -24,6 +24,7 @@ export class DashboardPage implements OnInit {
   todosCartoes: Cartao[];
   paineis: Painel[];
   currentToken: Token;
+  painelSelecionadoId: number = 0;
 
   fraseVocalizada: string = "";
 
@@ -37,6 +38,11 @@ export class DashboardPage implements OnInit {
 
   editandoPainel: boolean = false;
   editarPainelForm: FormGroup;
+  ehTablet: Boolean;
+  cartoesSelecionadosAddPainel: Cartao[] = [];
+  painelASerAdicionado: Painel;
+  adicionandoCartoesAPainel: boolean = false;
+  brightnessCartoes = [];
 
   breakpoint: any;
 
@@ -51,10 +57,13 @@ export class DashboardPage implements OnInit {
     private painelService: PainelService,
     private elementRef: ElementRef,
     private alertCtrl: AlertController,
+    private platform: Platform,
   ) { }
 
   ngOnInit() {
 
+    this.ehTablet = this.platform.is('tablet') || this.platform.is('ipad');
+    //console.log(this.ehTablet);
     this.criandoPainel = false;
 
     this.route.params.subscribe(params => {
@@ -77,7 +86,7 @@ export class DashboardPage implements OnInit {
                   this.categorias[i].imagem = imagemURL;
                 },
                 error => {
-                  console.log(error);
+                  //console.log(error);
                   // @TODO tratar erros e mensagens de erro
                 });
             }
@@ -92,14 +101,15 @@ export class DashboardPage implements OnInit {
             this.todosCartoes = result as Cartao[];
             // Já que conseguiu pegar os cartões, pegar as imagens por id de cada cartão
             for (let i = 0; i < this.todosCartoes.length; i++ ) {
+              this.brightnessCartoes[this.todosCartoes[i].id] = 'brightness(100%)';
               this.cartaoService.getImagemCartao(this.currentToken, this.todosCartoes[i].id.toString())
                 .subscribe(imagem => {
                   const imagemURL = URL.createObjectURL(imagem);
                   this.todosCartoes[i].imagem = imagemURL;
                 },
                 error => {
-                  console.log(error);
-                  console.log('Problema em pegar imagens dos cartões');
+                  ////console.log(error);
+                  ////console.log('Problema em pegar imagens dos cartões');
                   // @TODO tratar erros e mensagens de erro
                 });
             }
@@ -118,7 +128,7 @@ export class DashboardPage implements OnInit {
             }
           },
           err => {
-            console.log("Erro ao carregar cartões");
+            //console.log("Erro ao carregar cartões");
           }
         );
 
@@ -165,8 +175,10 @@ export class DashboardPage implements OnInit {
 
   voltarParaCategorias() {
     this.mostrarCartoes = 0;
-    this.categoriasExpandidas = true;
+    this.categoriasExpandidas = false;
+    this.paineisExpandidos = true;
     this.criandoPainel = false;
+    this.adicionandoCartoesAPainel = false;
   }
 
   adicionarCartaoAFrase(nomeCartao: string) {
@@ -188,10 +200,10 @@ export class DashboardPage implements OnInit {
       locale: 'en-US',
       rate: 1.0
     })
-      .then(() => console.log('tudo certo'))
+      .then(() => {})//console.log('tudo certo'))
       .catch((reason: any) => {
-        console.log(reason);
-        console.log('deu ruim');
+        //console.log(reason);
+        //console.log('deu ruim');
       });
 
   }
@@ -206,11 +218,11 @@ export class DashboardPage implements OnInit {
       
       this.painelService.cadastrarPainel(this.currentToken, painel)
         .subscribe(result => {
-          console.log(result);
+          //console.log(result);
           this.ngOnInit();
         },
         err => {
-          console.log(err);
+          //console.log(err);
         }
       );
     }
@@ -226,12 +238,14 @@ export class DashboardPage implements OnInit {
           handler: () => {
             this.painelService.deletarPainel(this.currentToken, parseInt(this.currentToken.id_usuario.toString()), id_painel).subscribe(
               result => {
-                console.log(result);
+                //console.log(result);
+                this.voltarParaCategorias();
                 this.ngOnInit();
         
               },
               err => {
-                console.log("Erro ao deletar o painel");
+                //console.log("Erro ao deletar o painel");
+                this.voltarParaCategorias();
               }
             );
           }
@@ -267,26 +281,110 @@ export class DashboardPage implements OnInit {
           this.ngOnInit();
         },
         err => {
-          console.log('Erro ao editar o painel.');
+          //console.log('Erro ao editar o painel.');
         }
       );
     }
   }
 
   selecionarPainel(id_painel: number) {
+    this.painelSelecionadoId = id_painel;
     this.painelService.getPainel(this.currentToken, this.currentToken.id_usuario, id_painel).subscribe(
       result => {
-        this.mostrarCartoes = -1;
+        this.cartoes = [];
+        //console.log(result);
         for(let i=0; i<this.todosCartoes.length; i++) {
-          if(result['cartoes'].indexOf(this.todosCartoes[i]) != -1) {
+          if(this.getById(result['cartoes'], this.todosCartoes[i].id).length > 0) {
             this.cartoes.push(this.todosCartoes[i]);
+            //console.log("tudo certo");
           }
         }
-        console.log("tudo certo");
+        this.mostrarCartoes = -1;
       },
       err => {
-        console.log('Não foi possível carregar os cartões do painel selecionado');
+        //console.log(err);
+        //console.log('Não foi possível carregar os cartões do painel selecionado');
       }
     );
   }
+
+  getById(cartoesAPI: any[], id: number) {
+    return cartoesAPI.filter(function(cartaoAPI) {
+      return cartaoAPI.id_cartao === id;
+    });
+  }
+
+  selecionarCartaoAddPainel(cartaoSelecionado) {
+    // se o cartao já foi selecionado
+    if( this.getCartaoById(this.cartoesSelecionadosAddPainel, cartaoSelecionado.id).length > 0 ) {
+      // desseleciona o cartão
+      this.brightnessCartoes[cartaoSelecionado.id] = 'brightness(100%)';
+      this.cartoesSelecionadosAddPainel = this.removeCartao(this.cartoesSelecionadosAddPainel, cartaoSelecionado.id);
+      //console.log("desselecionando o cartão");
+    }else {
+      //se não foi selecionado, seleciona ele
+      this.brightnessCartoes[cartaoSelecionado.id] = 'brightness(60%)';
+      this.cartoesSelecionadosAddPainel.push(cartaoSelecionado);
+      //console.log("selecionando o cartão");
+      
+    }
+  }
+
+  adicionarListaDeCartoesNoPainel() {
+    for (let i=0; i<this.cartoesSelecionadosAddPainel.length; i++) {
+      //console.log( this.painelASerAdicionado.id, this.cartoesSelecionadosAddPainel[i].id );
+      this.painelService.addCartaoPainel(this.currentToken, this.painelASerAdicionado.id, this.cartoesSelecionadosAddPainel[i].id).subscribe(
+        result => {
+        },
+        err => {
+          //console.log(err);
+        }
+        );
+      }
+      this.adicionandoCartoesAPainel = false;
+      this.voltarParaCategorias();
+      this.selecionarPainel(this.painelASerAdicionado.id);
+  }
+
+  getCartaoById(cartoes: Cartao[], id: number) {
+    return cartoes.filter(function(cartao){
+      return cartao.id == id;
+    });
+  }
+
+  removeCartao(cartoes: Cartao[], id: number) {
+    return cartoes.filter(function(cartao) {
+      return cartao.id != id;
+    });
+  }
+
+  iniciarSelecaoDeCartoesParaAdicionarNoPainel(painelSelecionado: Painel) {
+    this.painelASerAdicionado = painelSelecionado;
+    this.adicionandoCartoesAPainel = true;
+
+    
+  }
+
+  getButtonColor(cartao: Cartao) {
+    if(this.getCartaoById(this.cartoesSelecionadosAddPainel, cartao.id).length > 0) {
+      return '50%';
+    }else {
+      return '100%';
+    }
+  }
+
+  deletarCartaoDoPainel(cartao: Cartao) {
+    this.painelService.deletarCartaoDoPainel(this.currentToken, parseInt(this.currentToken.id_usuario.toString()), cartao.id, this.painelSelecionadoId)
+      .subscribe(
+        result => {
+          console.log('Cartão excluido do painel');
+          this.selecionarPainel(this.painelSelecionadoId);
+          this.fraseVocalizada = "";
+        },
+        err => {
+          console.log('Erro ao excluir cartao do painel');
+        }
+      );
+  }
+
 }

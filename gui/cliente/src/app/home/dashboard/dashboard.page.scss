@@ -19,15 +19,24 @@
     color: white;
 }
 
-.card {
-    max-width: 300px;
-    max-height: 350px;
-    min-height: 250px;
-    min-width: 200px;
+.card-tablet {
+    min-width: 350px;
+    min-height: 350px;
+    max-width: 350px;
+    max-height: 400px;
     margin: auto;
     text-align: center;
     --background: #7d6ebb75;
+    background-color: #7d6ebb75;
     background-size: cover;
+}
+
+.card-mobile-ios, .ios-card-mobile, .card-mobile {
+    min-width: 95%;
+    background-size: cover;
+    margin: auto;
+    text-align: center;
+    --background: #7d6ebb75;
 }
 
 .form-cria {
@@ -54,9 +63,9 @@
 
 .card-image {
     background-size: cover;
-    width: 95%;
-    height: 95%;
-    margin: auto;
+    width: 91%;
+    height: 91%;
+    margin: 4%;
 }
 .card-image-add-sign {
     background-size: cover;
@@ -66,9 +75,9 @@
 }
 
 .textbox {
-    --background: lightgray;
-    color: black;
-    opacity: 0.7;
+    width: 100%;
+    float: left;
+    white-space: pre-line;
 }
 
 .card-action {

@@ -4,7 +4,7 @@ import { Token } from '../models/token';
 import { Categoria } from '../models/categoria';
 import { Observable } from 'rxjs';
 
-const API = 'http://localhost:3000';
+const API = 'http://93.188.167.70';
 
 @Injectable({ providedIn: 'root' })
 export class CategoriaService {

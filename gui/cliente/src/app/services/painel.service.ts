@@ -4,7 +4,7 @@ import { Token } from '../models/token';
 import { Observable } from 'rxjs';
 import { Painel } from '../models/painel';
 
-const API = 'http://localhost:3000';
+const API = 'http://93.188.167.70';
 
 @Injectable({ providedIn: 'root' })
 export class PainelService {
@@ -57,7 +57,7 @@ export class PainelService {
       };
   
       return this.http
-        .post(API + '/painel?addcartao=true', { 'id_painel': id_painel, 'id_cartao': id_cartao }, httpOptions);
+        .post(API + '/paineis?addcartao=true', { 'id_painel': id_painel, 'id_cartao': id_cartao }, httpOptions);
   }
 
   editarPainel(token: Token, painel: Painel) {

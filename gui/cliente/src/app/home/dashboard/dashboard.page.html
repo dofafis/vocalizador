@@ -8,38 +8,85 @@
 
 
 <ion-content padding>
+  <div *ngIf="ehTablet">
+    <ion-item text-wrap *ngIf="!criandoPainel">
+      <ion-button (click)="limpar()" style="--background: gray;">Limpar</ion-button>
+      <ion-button (click)="apagarAnterior()"  style="--background: gray;">Apagar anterior</ion-button>
+      &nbsp;
+      <ion-label text-wrap class="textbox" style="color: black;"> {{ fraseVocalizada }} </ion-label>
+      &nbsp;
+      <ion-button (click)="vocalizar()">Vocalizar</ion-button>
+    </ion-item>
+  </div>
 
-  <ion-item text-wrap *ngIf="!criandoPainel">
-    <ion-button (click)="limpar()" style="--background: gray;">Limpar</ion-button>
-    <ion-button (click)="apagarAnterior()"  style="--background: gray;">Apagar anterior</ion-button>
-    &nbsp;
-    <ion-label text-wrap class="textbox"> {{ fraseVocalizada }} </ion-label>
-    &nbsp;
-    <ion-button (click)="vocalizar()">Vocalizar</ion-button>
-  </ion-item>
+  <div *ngIf="!ehTablet">
+      <ion-item *ngIf="!criandoPainel">
+        <ion-button (click)="limpar()" style="--background: gray;">Limpar</ion-button>
+        
+        <ion-button (click)="apagarAnterior()"  style="--background: gray;">Apagar anterior</ion-button>
+      </ion-item>
+    <ion-item text-wrap *ngIf="!criandoPainel">
+      <ion-label text-wrap class="textbox" style="color: black;"> {{ fraseVocalizada }} </ion-label>
+      
+    </ion-item>
+
+    <ion-item *ngIf="!criandoPainel">
+      <ion-button (click)="vocalizar()">Vocalizar</ion-button>
+    </ion-item>
+  </div>
   
   <br/>
 
-  <ion-button *ngIf="mostrarCartoes != 0 || criandoPainel || editandoPainel" class="title" (click)="voltarParaCategorias()" ><ion-icon ios="ios-arrow-back" md="md-arrow-back"></ion-icon>Voltar</ion-button>
-  <ion-button *ngIf="mostrarCartoes === 0 && !criandoPainel && !editandoPainel" (click)="expandirCategorias()" style="width: 100%; text-align: left;"><ion-icon *ngIf="!categoriasExpandidas" ios="ios-arrow-dropdown" md="md-arrow-dropdown"></ion-icon><ion-icon *ngIf="categoriasExpandidas" ios="ios-arrow-dropup" md="md-arrow-dropup"></ion-icon>Categorias</ion-button>
-  <ion-grid *ngIf="categoriasExpandidas && !criandoPainel && !editandoPainel">
+  <ion-button *ngIf="mostrarCartoes != 0 || criandoPainel || editandoPainel || adicionandoCartoesAPainel" class="title" (click)="voltarParaCategorias()" ><ion-icon ios="ios-arrow-back" md="md-arrow-back"></ion-icon>Voltar</ion-button>
+  <ion-button *ngIf="mostrarCartoes === 0 && !criandoPainel && !editandoPainel && !adicionandoCartoesAPainel" (click)="expandirCategorias()" style="width: 100%; text-align: left;"><ion-icon *ngIf="!categoriasExpandidas" ios="ios-arrow-dropdown" md="md-arrow-dropdown"></ion-icon><ion-icon *ngIf="categoriasExpandidas" ios="ios-arrow-dropup" md="md-arrow-dropup"></ion-icon>Categorias</ion-button>
+  <ion-grid *ngIf="categoriasExpandidas && !criandoPainel && !editandoPainel && !adicionandoCartoesAPainel">
     <ion-row >
       <ion-col col-6 col-md-4 col-xl-3 *ngFor="let categoria of categorias" >
-        <ion-card mode="ios" class="card" (click)="selecionarCategorias(categoria.id)" >
+        <ion-card mode="ios" [ngClass]="ehTablet ? 'card-tablet': 'card-mobile'" (click)="selecionarCategorias(categoria.id)" >
           <ion-title class="card-title"> {{ categoria.nome }} </ion-title>
           <ion-img class="card-image" [src]="categoria.imagem"></ion-img>
         </ion-card>
       </ion-col>
     </ion-row>
   </ion-grid>
-  
-  <ion-grid *ngIf="mostrarCartoes != 0 && !criandoPainel && !editandoPainel">
+
+  <ion-grid *ngIf="mostrarCartoes != 0 && mostrarCartoes != -1 && !criandoPainel && !editandoPainel && !adicionandoCartoesAPainel">
     <br/>
     <br/>
     <br/>
     <ion-row >
       <ion-col col-6 col-md-4 col-xl-3 *ngFor="let cartao of cartoes">
-        <ion-card (click)="adicionarCartaoAFrase(cartao.nome)" class="card" mode="ios" >
+        <ion-card mode="ios" (click)="adicionarCartaoAFrase(cartao.nome)" [ngClass]="ehTablet ? 'card-tablet': 'card-mobile'" >
+          <ion-title class="card-title"> {{ cartao.nome }} </ion-title>
+          <ion-img class="card-image" [src]="cartao.imagem"></ion-img>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid *ngIf="mostrarCartoes === -1">
+    <br/>
+    <br/>
+    <br/>
+    <ion-row >
+      <ion-col col-6 col-md-4 col-xl-3 *ngFor="let cartao of cartoes">
+        <ion-card mode="ios" (click)="adicionarCartaoAFrase(cartao.nome)" [ngClass]="ehTablet ? 'card-tablet': 'card-mobile'" >
+          <ion-title class="card-title"> {{ cartao.nome }} </ion-title>
+          <ion-img class="card-image" [src]="cartao.imagem"></ion-img>
+          <ion-button (click)="deletarCartaoDoPainel(cartao)" style="--background: gray; margin: 1%;">Remover do painel</ion-button>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid *ngIf="adicionandoCartoesAPainel">
+    <ion-button (click)="adicionarListaDeCartoesNoPainel()" style="float: right;">Adicionar cartões</ion-button>
+    <br/>
+    <br/>
+    <br/>
+    <ion-row >
+      <ion-col col-6 col-md-4 col-xl-3 *ngFor="let cartao of todosCartoes">
+        <ion-card mode="ios" (click)="selecionarCartaoAddPainel(cartao)" [ngClass]="ehTablet ? 'card-tablet': 'card-mobile'" [ngStyle]="{ 'filter': brightnessCartoes[cartao.id] }" >
           <ion-title class="card-title"> {{ cartao.nome }} </ion-title>
           <ion-img class="card-image" [src]="cartao.imagem"></ion-img>
         </ion-card>
@@ -48,23 +95,24 @@
   </ion-grid>
 
 
-  <ion-button *ngIf="mostrarCartoes === 0 && !criandoPainel && !editandoPainel" (click)="expandirPaineis()" style="width: 100%; text-align: left;"><ion-icon *ngIf="!categoriasExpandidas" ios="ios-arrow-dropdown" md="md-arrow-dropdown"></ion-icon><ion-icon *ngIf="categoriasExpandidas" ios="ios-arrow-dropup" md="md-arrow-dropup"></ion-icon>Painéis</ion-button>
-  <ion-grid *ngIf="paineisExpandidos && mostrarCartoes === 0 && !criandoPainel && !editandoPainel">
+  <ion-button *ngIf="mostrarCartoes === 0 && !criandoPainel && !editandoPainel && !adicionandoCartoesAPainel" (click)="expandirPaineis()" style="width: 100%; text-align: left;"><ion-icon *ngIf="!categoriasExpandidas" ios="ios-arrow-dropdown" md="md-arrow-dropdown"></ion-icon><ion-icon *ngIf="categoriasExpandidas" ios="ios-arrow-dropup" md="md-arrow-dropup"></ion-icon>Painéis</ion-button>
+  <ion-grid *ngIf="paineisExpandidos && mostrarCartoes === 0 && !criandoPainel && !editandoPainel && !adicionandoCartoesAPainel">
     <ion-row >
       <ion-col col-6 col-md-4 col-xl-3 >
-        <ion-card mode="ios" class="card" (click)="criarPainel()" >
+        <ion-card [ngClass]="ehTablet ? 'card-tablet': 'card-mobile'" (click)="criarPainel()" >
           <ion-title class="card-title"> Adicionar Painel </ion-title>
           <ion-img class="card-image-add-sign" src="assets/add-sign.png"></ion-img>
         </ion-card>
       </ion-col>
       <ion-col col-6 col-md-4 col-xl-3 *ngFor="let painel of paineis" >
-        <ion-card mode="ios" [style.background]="painel.imagem" class="card" (click)="selecionarPainel(painel.id)" >
+        <ion-card mode="ios" [style.background]="painel.imagem" [ngClass]="ehTablet ? 'card-tablet': 'card-mobile'" (click)="selecionarPainel(painel.id)" >
           <ion-title class="card-title"> {{ painel.nome }} </ion-title>
           <br/>
           <br/>
           <ion-card-content word-wrap style="color: black; font-size: 20px;"> {{ painel.descricao }} </ion-card-content>
           <ion-button (click)="editarPainel(painel)" style="--background: gray;" class="card-action">Editar</ion-button>
           <ion-button (click)="excluirPainel(painel.id)" class="card-action">Excluir</ion-button>
+          <ion-button (click)="iniciarSelecaoDeCartoesParaAdicionarNoPainel(painel)" style="--background: #1d1735;">Adicionar Cartões</ion-button>
         </ion-card>
       </ion-col>
     </ion-row>
@@ -73,7 +121,8 @@
   <br/>
   <br/>
   <br/>
-  <ion-card class="form-cria" *ngIf="criandoPainel">
+  <br/>
+  <ion-card mode="ios" class="form-cria" *ngIf="criandoPainel">
     <ion-card-title class="card-title">Criar Painel</ion-card-title>
     <form [formGroup]="criarPainelForm">
       <br/>
@@ -132,5 +181,8 @@
         </ion-row>
       </form>
     </ion-card>
+
+
+
 
 </ion-content>
