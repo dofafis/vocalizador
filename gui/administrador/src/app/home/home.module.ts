@@ -7,7 +7,7 @@ import { MyMaterialModule } from '../material.module';
 import { HttpClientModule } from '@angular/common/http';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { MatCardModule, MatIconModule, MatDialogModule, MatButtonModule } from '@angular/material';
+import { MatCardModule, MatIconModule, MatDialogModule, MatButtonModule, MatSnackBarModule, MatSnackBarContainer } from '@angular/material';
 import { DarkenOnHoverModule } from '../darken-on-hover/darken-on-hover.module';
 import { DialogComponent } from './dialog/dialog.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -25,10 +25,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         DarkenOnHoverModule,
         MatDialogModule,
         MatButtonModule,
-        BrowserAnimationsModule
-    ],
-    entryComponents: [
+        BrowserAnimationsModule,
+        MatSnackBarModule
+      ],
+      entryComponents: [
         DialogComponent
-    ]
+      ]
 })
 export class HomeModule {}

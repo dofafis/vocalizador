@@ -23,6 +23,18 @@ export class CartaoService {
     return this.http.get(API + '/cartoes', httpOptions);
   }
 
+  getCartao(id_cartao: number) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      })
+    };
+
+    return this.http
+      .get(API + '/cartoes?id=' + id_cartao, httpOptions);
+
+  }
+
   getImagemCartao(token: Token, id_cartao: string) : Observable<Blob> {
     const httpOptions = {
       responseType: 'blob' as 'json',

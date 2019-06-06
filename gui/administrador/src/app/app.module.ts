@@ -1,3 +1,4 @@
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
@@ -28,7 +29,7 @@ import { MatIconModule } from '@angular/material';
       { path: 'dashboard', component: DashboardComponent },
     ], { useHash: true })
   ],
-  providers: [],
+  providers: [ MatSnackBar ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

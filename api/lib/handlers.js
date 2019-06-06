@@ -803,7 +803,7 @@ handlers._cartoes.post = function(data, callback) {
 
 // Cartoes - get
 // Dados obrigatórios: none
-// Dados opcionais: id, id_categoria, id_cartao
+// Dados opcionais: id, id_categoria, id_painel
 handlers._cartoes.get = function(data, callback) {
 
   var id = typeof(data.queryStringObject.id) == 'string' && data.queryStringObject.id.trim().length > 0 ? data.queryStringObject.id.trim() : false;

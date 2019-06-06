@@ -80,15 +80,18 @@ export class DashboardPage implements OnInit {
 
             // Já que conseguiu pegar as categorias, pegar as imagens por id de cada uma
             for (let i = 0; i < this.categorias.length; i++) {
-              this.categoriaService.getImagemCategoria(this.currentToken, this.categorias[i].id.toString())
-                .subscribe(imagem => {
-                  const imagemURL = URL.createObjectURL(imagem);
-                  this.categorias[i].imagem = imagemURL;
-                },
-                error => {
-                  //console.log(error);
-                  // @TODO tratar erros e mensagens de erro
-                });
+              if(!this.categorias[i].imagem) {
+                this.categoriaService.getImagemCategoria(this.currentToken, this.categorias[i].id.toString())
+                  .subscribe(imagem => {
+                    const imagemURL = URL.createObjectURL(imagem);
+                    this.categorias[i].imagem = imagemURL;
+                  },
+                  error => {
+                    //console.log(error);
+                    // @TODO tratar erros e mensagens de erro
+                  }
+                );
+              }
             }
           },
           err => {
@@ -101,17 +104,20 @@ export class DashboardPage implements OnInit {
             this.todosCartoes = result as Cartao[];
             // Já que conseguiu pegar os cartões, pegar as imagens por id de cada cartão
             for (let i = 0; i < this.todosCartoes.length; i++ ) {
-              this.brightnessCartoes[this.todosCartoes[i].id] = 'brightness(100%)';
-              this.cartaoService.getImagemCartao(this.currentToken, this.todosCartoes[i].id.toString())
-                .subscribe(imagem => {
-                  const imagemURL = URL.createObjectURL(imagem);
-                  this.todosCartoes[i].imagem = imagemURL;
-                },
-                error => {
-                  ////console.log(error);
-                  ////console.log('Problema em pegar imagens dos cartões');
-                  // @TODO tratar erros e mensagens de erro
-                });
+              if(!this.todosCartoes[i].imagem) {
+                this.brightnessCartoes[this.todosCartoes[i].id] = 'brightness(100%)';
+                this.cartaoService.getImagemCartao(this.currentToken, this.todosCartoes[i].id.toString())
+                  .subscribe(imagem => {
+                    const imagemURL = URL.createObjectURL(imagem);
+                    this.todosCartoes[i].imagem = imagemURL;
+                  },
+                  error => {
+                    ////console.log(error);
+                    ////console.log('Problema em pegar imagens dos cartões');
+                    // @TODO tratar erros e mensagens de erro
+                  }
+                );
+              }
             }
           },
           err => {
@@ -241,7 +247,6 @@ export class DashboardPage implements OnInit {
                 //console.log(result);
                 this.voltarParaCategorias();
                 this.ngOnInit();
-        
               },
               err => {
                 //console.log("Erro ao deletar o painel");
@@ -259,7 +264,6 @@ export class DashboardPage implements OnInit {
     });
     await alert.present();
   }
-
 
   editarPainel(painel: Painel) {
     this.editarPainelForm.setValue({
@@ -361,8 +365,6 @@ export class DashboardPage implements OnInit {
   iniciarSelecaoDeCartoesParaAdicionarNoPainel(painelSelecionado: Painel) {
     this.painelASerAdicionado = painelSelecionado;
     this.adicionandoCartoesAPainel = true;
-
-    
   }
 
   getButtonColor(cartao: Cartao) {

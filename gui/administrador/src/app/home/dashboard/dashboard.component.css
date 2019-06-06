@@ -52,3 +52,22 @@ mat-card img{
   width: 40%; /* Here you can use wherever you want to specify the width and also the height of the <img>*/
   height: 40%;
 }
+
+::ng-deep snack-bar-container.snack-bar-error {
+  background-color: #ed0000;
+  color: white;
+}
+
+::ng-deep snack-bar-container.snack-bar-success {
+  background-color: #03b411;
+  color: white;
+}
+
+::ng-deep snack-bar-container.snack-bar-loading {
+  background-color: gray;
+  color: white;
+}
+
+.mat-simple-snackbar-action {
+  color: white;
+}
