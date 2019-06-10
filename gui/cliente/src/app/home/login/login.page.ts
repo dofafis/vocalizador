@@ -47,4 +47,8 @@ export class LoginPage implements OnInit {
     }
   }
 
+  esqueceuASenha() {
+    return true;
+  }
+
 }

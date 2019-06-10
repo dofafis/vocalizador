@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { NavController, IonCard, AlertController, Platform } from '@ionic/angular';
+import { NavController, IonCard, AlertController, Platform, ToastController } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Categoria } from 'src/app/models/categoria';
@@ -38,11 +38,12 @@ export class DashboardPage implements OnInit {
 
   editandoPainel: boolean = false;
   editarPainelForm: FormGroup;
-  ehTablet: Boolean;
+  ehTablet: Boolean = true;
   cartoesSelecionadosAddPainel: Cartao[] = [];
   painelASerAdicionado: Painel;
   adicionandoCartoesAPainel: boolean = false;
   brightnessCartoes = [];
+  numColumns = 3;
 
   breakpoint: any;
 
@@ -58,11 +59,33 @@ export class DashboardPage implements OnInit {
     private elementRef: ElementRef,
     private alertCtrl: AlertController,
     private platform: Platform,
+    private toastCtrl: ToastController
   ) { }
 
-  ngOnInit() {
 
+  async presentToast() {
+    let toast = await this.toastCtrl.create({
+      message: 'User was added successfully',
+      duration: 3000,
+      position: 'top'
+    });
+  
+    const { data } = await toast.onDidDismiss();
+
+    console.log(data);
+  
+    toast.present();
+  }
+
+  ngOnInit() {
+    
     this.ehTablet = this.platform.is('tablet') || this.platform.is('ipad');
+
+    if (this.ehTablet) {
+      this.numColumns = 3;
+    } else {
+      this.numColumns = 12;
+    }
     //console.log(this.ehTablet);
     this.criandoPainel = false;
 
@@ -77,6 +100,7 @@ export class DashboardPage implements OnInit {
         this.categoriaService.getTodasCategorias().subscribe(
           (result) => {
             this.categorias = result as Categoria[];
+            this.presentToast();
 
             // Já que conseguiu pegar as categorias, pegar as imagens por id de cada uma
             for (let i = 0; i < this.categorias.length; i++) {
@@ -343,11 +367,11 @@ export class DashboardPage implements OnInit {
         err => {
           //console.log(err);
         }
-        );
-      }
-      this.adicionandoCartoesAPainel = false;
-      this.voltarParaCategorias();
-      this.selecionarPainel(this.painelASerAdicionado.id);
+      );
+    }
+    this.adicionandoCartoesAPainel = false;
+    this.voltarParaCategorias();
+    this.selecionarPainel(this.painelASerAdicionado.id);
   }
 
   getCartaoById(cartoes: Cartao[], id: number) {
